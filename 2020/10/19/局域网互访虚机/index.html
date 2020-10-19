@@ -21,7 +21,7 @@
 
 <script class="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"8.0.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Mist","version":"8.0.1","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false,"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}};
   </script>
 
   <meta name="description" content="局域网互访虚机 宿主机配置 虚机配置 kvm配置  宿主机配置找到&#x2F;etc&#x2F;network&#x2F;interfaces，在后面添加 auto br0     &#x2F;&#x2F;添加的桥接网卡，新的名字 iface br0 inet static address 10.0.1.60    &#x2F;&#x2F;宿主机IP netmask 255.255.254.0 broadcast 10.0.1.255 gateway 10.0.0.">
@@ -493,8 +493,8 @@ NexT.utils.loadComments('#gitalk-container', () => {
       clientID    : 'Iv1.82a2e87522901683',
       clientSecret: '5d30af648e437d64556c804948e7f20b2e679705',
       repo        : 'comments',
-      owner       : 'https://github.com/yangtzeshore',
-      admin       : ['https://github.com/yangtzeshore'],
+      owner       : 'yangtzeshore',
+      admin       : ['yangtzeshore'],
       id          : '439f17dc4ab013bc1f54ec2784634bc3',
         language: 'zh-CN',
       distractionFreeMode: false
