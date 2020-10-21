@@ -161,6 +161,91 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Peng Chen">
+      <meta itemprop="description" content="Pengchen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pengchen's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/" class="post-title-link" itemprop="url">分库分表——2. 迁移方案</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-10-21 11:51:51 / 修改时间：14:26:19" itemprop="dateCreated datePublished" datetime="2020-10-21T11:51:51+08:00">2020-10-21</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-method.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<p>&emsp;&emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表<strong>动态切换</strong>到分库分表上？</p>
+<h3 id="停机迁移方案"><a href="#停机迁移方案" class="headerlink" title="停机迁移方案"></a>停机迁移方案</h3><p>&emsp;&emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。</p>
+<p>&emsp;&emsp;接着到 0 点停机，系统停掉，没有流量写入了，此时老的单库单表数据库静止了。然后你之前得写好一个<strong>导数的一次性工具</strong>，此时直接跑起来，然后将单库单表的数据哗哗哗读出来，写到分库分表里面去。</p>
+<p>&emsp;&emsp;导数完了之后，就 ok 了，修改系统的数据库连接配置啥的，包括可能代码和 SQL 也许有修改，那你就用最新的代码，然后直接启动连到新的分库分表上去。</p>
+<p>&emsp;&emsp;验证一下，ok 了，完美，大家伸个懒腰，看看看凌晨 4 点钟的北京夜景，打个滴滴回家吧。</p>
+<p>&emsp;&emsp;但是这个方案比较 low，谁都能干，我们来看看高大上一点的方案。</p>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png" alt="database-shard-method-1"></a></p>
+<h3 id="双写迁移方案"><a href="#双写迁移方案" class="headerlink" title="双写迁移方案"></a>双写迁移方案</h3><p>&emsp;1. 将新的库配置为源库的从库用来同步数据；如果需要将数据同步到多库多表，那么可以使用一些第三方工具获取 Binlog 的增量日志（比如开源工具 Canal），在获取增量日志之后就可以按照分库分表的逻辑写入到新的库表中了。</p>
+<p>&emsp;2. 同时我们需要改造业务代码，在数据写入的时候不仅要写入旧库也要写入新库。当然，基于性能的考虑，我们可以异步地写入新库，只要保证旧库写入成功即可。但是我们需要注意的是，需要将写入新库失败的数据记录在单独的日志中，这样方便后续对这些数据补写，保证新库和旧库的数据一致性。</p>
+<p>&emsp;3. 然后我们就可以开始校验数据了。由于数据库中数据量很大，做全量的数据校验不太现实。你可以抽取部分数据，具体数据量依据总体数据量而定，只要保证这些数据是一致的就可以。</p>
+<p>&emsp;4. 双写时加开关，默认关闭双写，上线完成后关闭同步，同时打开开关，在低峰期的话数据丢失的概率不高。再配合数据校验的工作，是可以保证一致性的。</p>
+<p>&emsp;5. 如果一切顺利，我们就可以将读流量切换到新库了。由于担心一次切换全量读流量可能会对系统产生未知的影响，所以这里最好采用灰度的方式来切换，比如开始切换 10% 的流量，如果没有问题再切换到 50% 的流量，最后再切换到 100%。</p>
+<p>&emsp;6. 由于有双写的存在，所以在切换的过程中出现任何的问题都可以将读写流量随时切换到旧库去，保障系统的性能。</p>
+<p>&emsp;7. 在观察了几天发现数据的迁移没有问题之后，就可以将数据库的双写改造成只写新库，数据的迁移也就完成了。</p>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-2.webp" alt="database-shard-method-2"></a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-method.md">1. database-shard-method</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ab2efddfafbd">2. 数据迁移之同步双写方案</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-1-%E5%9F%BA%E6%9C%AC%E4%BA%86%E8%A7%A3/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -563,7 +648,7 @@ IPV6_PEERROUTES=yes</code></pre>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>

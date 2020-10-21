@@ -23,21 +23,24 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="TwoSum 题目介绍 题目解法  题目介绍两数之和 给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回他们的数组下标。 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。 示例: 1234给定 nums &#x3D; [2, 7, 11, 15], target &#x3D; 9因为 nums[0] + nums[1">
+  <meta name="description" content="前言：&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表动态切换到分库分表上？ 停机迁移方案&amp;emsp;&amp;emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。 &amp;e">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TwoSum">
-<meta property="og:url" content="http://example.com/2020/10/19/TwoSum/index.html">
+<meta property="og:title" content="分库分表——2. 迁移方案">
+<meta property="og:url" content="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="TwoSum 题目介绍 题目解法  题目介绍两数之和 给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回他们的数组下标。 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。 示例: 1234给定 nums &#x3D; [2, 7, 11, 15], target &#x3D; 9因为 nums[0] + nums[1">
+<meta property="og:description" content="前言：&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表动态切换到分库分表上？ 停机迁移方案&amp;emsp;&amp;emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。 &amp;e">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-10-19T08:33:57.000Z">
-<meta property="article:modified_time" content="2020-10-19T09:05:39.882Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-2.webp">
+<meta property="article:published_time" content="2020-10-21T03:51:51.000Z">
+<meta property="article:modified_time" content="2020-10-21T06:26:19.011Z">
 <meta property="article:author" content="Peng Chen">
-<meta property="article:tag" content="Leetcode">
-<meta property="article:tag" content="算法">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="分库分表">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png">
 
-<link rel="canonical" href="http://example.com/2020/10/19/TwoSum/">
+<link rel="canonical" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/">
 
 
 <script id="page-configurations">
@@ -50,7 +53,7 @@
   };
 </script>
 
-  <title>TwoSum | Pengchen's Blog</title>
+  <title>分库分表——2. 迁移方案 | Pengchen's Blog</title>
   
 
 
@@ -166,7 +169,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/19/TwoSum/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -179,7 +182,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          TwoSum
+          分库分表——2. 迁移方案
         </h1>
 
         <div class="post-meta">
@@ -190,7 +193,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-19 16:33:57 / 修改时间：17:05:39" itemprop="dateCreated datePublished" datetime="2020-10-19T16:33:57+08:00">2020-10-19</time>
+              <time title="创建时间：2020-10-21 11:51:51 / 修改时间：14:26:19" itemprop="dateCreated datePublished" datetime="2020-10-21T11:51:51+08:00">2020-10-21</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -198,7 +201,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Leetcode/" itemprop="url" rel="index"><span itemprop="name">Leetcode</span></a>
+                  <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
                 </span>
             </span>
 
@@ -220,23 +223,24 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="TwoSum"><a href="#TwoSum" class="headerlink" title="TwoSum"></a>TwoSum</h2><ul>
-<li><a href="#%E9%A2%98%E7%9B%AE%E4%BB%8B%E7%BB%8D">题目介绍</a></li>
-<li><a href="#%E9%A2%98%E7%9B%AE%E8%A7%A3%E6%B3%95">题目解法</a></li>
-</ul>
-<h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a><span id="题目介绍">题目介绍</span></h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/two-sum/">两数之和</a></p>
-<p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
-<p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。</p>
-<p><strong>示例:</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">给定 nums &#x3D; [2, 7, 11, 15], target &#x3D; 9</span><br><span class="line"></span><br><span class="line">因为 nums[0] + nums[1] &#x3D; 2 + 7 &#x3D; 9</span><br><span class="line">所以返回 [0, 1]</span><br></pre></td></tr></table></figure>
-
-<h2 id="题目解法"><a href="#题目解法" class="headerlink" title="题目解法"></a><span id="题目解法">题目解法</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] indexs = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        <span class="comment">// k 数值, v 下标</span></span><br><span class="line">        Map&lt;Integer, Integer&gt; hashMap = <span class="keyword">new</span> HashMap&lt;Integer, Integer&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (hashMap.containsKey(nums[i])) &#123;</span><br><span class="line">                indexs[<span class="number">0</span>] = hashMap.get(nums[i]);</span><br><span class="line">                indexs[<span class="number">1</span>] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            hashMap.put(target - nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> indexs;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>思路：</p>
-<ul>
-<li>利用隐藏的条件，必定有两个数满足target。</li>
-<li>那么遍历数字，将补数作为key存入hashmap，如果后面遍历到补数自然就能返回下标。</li>
-</ul>
+        <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-method.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<p>&emsp;&emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表<strong>动态切换</strong>到分库分表上？</p>
+<h3 id="停机迁移方案"><a href="#停机迁移方案" class="headerlink" title="停机迁移方案"></a>停机迁移方案</h3><p>&emsp;&emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。</p>
+<p>&emsp;&emsp;接着到 0 点停机，系统停掉，没有流量写入了，此时老的单库单表数据库静止了。然后你之前得写好一个<strong>导数的一次性工具</strong>，此时直接跑起来，然后将单库单表的数据哗哗哗读出来，写到分库分表里面去。</p>
+<p>&emsp;&emsp;导数完了之后，就 ok 了，修改系统的数据库连接配置啥的，包括可能代码和 SQL 也许有修改，那你就用最新的代码，然后直接启动连到新的分库分表上去。</p>
+<p>&emsp;&emsp;验证一下，ok 了，完美，大家伸个懒腰，看看看凌晨 4 点钟的北京夜景，打个滴滴回家吧。</p>
+<p>&emsp;&emsp;但是这个方案比较 low，谁都能干，我们来看看高大上一点的方案。</p>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png" alt="database-shard-method-1"></a></p>
+<h3 id="双写迁移方案"><a href="#双写迁移方案" class="headerlink" title="双写迁移方案"></a>双写迁移方案</h3><p>&emsp;1. 将新的库配置为源库的从库用来同步数据；如果需要将数据同步到多库多表，那么可以使用一些第三方工具获取 Binlog 的增量日志（比如开源工具 Canal），在获取增量日志之后就可以按照分库分表的逻辑写入到新的库表中了。</p>
+<p>&emsp;2. 同时我们需要改造业务代码，在数据写入的时候不仅要写入旧库也要写入新库。当然，基于性能的考虑，我们可以异步地写入新库，只要保证旧库写入成功即可。但是我们需要注意的是，需要将写入新库失败的数据记录在单独的日志中，这样方便后续对这些数据补写，保证新库和旧库的数据一致性。</p>
+<p>&emsp;3. 然后我们就可以开始校验数据了。由于数据库中数据量很大，做全量的数据校验不太现实。你可以抽取部分数据，具体数据量依据总体数据量而定，只要保证这些数据是一致的就可以。</p>
+<p>&emsp;4. 双写时加开关，默认关闭双写，上线完成后关闭同步，同时打开开关，在低峰期的话数据丢失的概率不高。再配合数据校验的工作，是可以保证一致性的。</p>
+<p>&emsp;5. 如果一切顺利，我们就可以将读流量切换到新库了。由于担心一次切换全量读流量可能会对系统产生未知的影响，所以这里最好采用灰度的方式来切换，比如开始切换 10% 的流量，如果没有问题再切换到 50% 的流量，最后再切换到 100%。</p>
+<p>&emsp;6. 由于有双写的存在，所以在切换的过程中出现任何的问题都可以将读写流量随时切换到旧库去，保障系统的性能。</p>
+<p>&emsp;7. 在观察了几天发现数据的迁移没有问题之后，就可以将数据库的双写改造成只写新库，数据的迁移也就完成了。</p>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-2.webp" alt="database-shard-method-2"></a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-method.md">1. database-shard-method</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ab2efddfafbd">2. 数据迁移之同步双写方案</a></p>
 
     </div>
 
@@ -246,8 +250,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Leetcode/" rel="tag"># Leetcode</a>
-              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" rel="tag"># 分库分表</a>
           </div>
 
         
@@ -256,13 +260,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/" rel="prev" title="局域网互访虚机">
-      <i class="fa fa-chevron-left"></i> 局域网互访虚机
+    <a href="/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-1-%E5%9F%BA%E6%9C%AC%E4%BA%86%E8%A7%A3/" rel="prev" title="分库分表——1. 基本了解">
+      <i class="fa fa-chevron-left"></i> 分库分表——1. 基本了解
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-1-%E5%9F%BA%E6%9C%AC%E4%BA%86%E8%A7%A3/" rel="next" title="分库分表——1. 基本了解">
-      分库分表——1. 基本了解 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -322,7 +323,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#TwoSum"><span class="nav-number">1.</span> <span class="nav-text">TwoSum</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">题目介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E8%A7%A3%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">题目解法</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">前言：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%9C%E6%9C%BA%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">停机迁移方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E5%86%99%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">双写迁移方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -472,7 +473,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '36dfea70e7b5d3a907344711e0eab3bd',
+      id          : 'eb766cbf784ed3116a499aa2fc5e2f8f',
         language: 'zh-CN',
       distractionFreeMode: true
     });
