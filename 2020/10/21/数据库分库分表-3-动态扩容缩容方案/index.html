@@ -23,21 +23,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="局域网互访虚机 宿主机配置 虚机配置 kvm配置  宿主机配置找到&#x2F;etc&#x2F;network&#x2F;interfaces，在后面添加 auto br0     &#x2F;&#x2F;添加的桥接网卡，新的名字 iface br0 inet static address 10.0.1.60    &#x2F;&#x2F;宿主机IP netmask 255.255.254.0 broadcast 10.0.1.255 gateway 10.0.0.">
+  <meta name="description" content="前言：&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 停机扩容（不推荐）&amp;emsp;&amp;emsp;这个方案就跟停机迁移一样，步骤几乎一致，唯一的一点就是那个导数的工具，是把现有库表的数据抽出来慢慢倒入到新的库和表里去。但是最好别这么玩儿，有点不太靠谱，因为既然分库分表就说明数据量实在是太大了，可能多达几亿条，甚至几十亿，你这么玩儿，可能会出问题。 &amp;emsp;&amp;emsp">
 <meta property="og:type" content="article">
-<meta property="og:title" content="局域网互访虚机">
-<meta property="og:url" content="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/index.html">
+<meta property="og:title" content="分库分表——3. 动态扩容缩容方案">
+<meta property="og:url" content="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-3-%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9%E7%BC%A9%E5%AE%B9%E6%96%B9%E6%A1%88/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="局域网互访虚机 宿主机配置 虚机配置 kvm配置  宿主机配置找到&#x2F;etc&#x2F;network&#x2F;interfaces，在后面添加 auto br0     &#x2F;&#x2F;添加的桥接网卡，新的名字 iface br0 inet static address 10.0.1.60    &#x2F;&#x2F;宿主机IP netmask 255.255.254.0 broadcast 10.0.1.255 gateway 10.0.0.">
+<meta property="og:description" content="前言：&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 停机扩容（不推荐）&amp;emsp;&amp;emsp;这个方案就跟停机迁移一样，步骤几乎一致，唯一的一点就是那个导数的工具，是把现有库表的数据抽出来慢慢倒入到新的库和表里去。但是最好别这么玩儿，有点不太靠谱，因为既然分库分表就说明数据量实在是太大了，可能多达几亿条，甚至几十亿，你这么玩儿，可能会出问题。 &amp;emsp;&amp;emsp">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-10-19T07:10:27.326Z">
-<meta property="article:modified_time" content="2020-10-19T08:09:15.242Z">
+<meta property="article:published_time" content="2020-10-21T06:39:21.000Z">
+<meta property="article:modified_time" content="2020-10-21T08:29:57.705Z">
 <meta property="article:author" content="Peng Chen">
-<meta property="article:tag" content="虚拟机">
-<meta property="article:tag" content="局域网">
+<meta property="article:tag" content="数据库">
+<meta property="article:tag" content="分库分表">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
+<link rel="canonical" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-3-%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9%E7%BC%A9%E5%AE%B9%E6%96%B9%E6%A1%88/">
 
 
 <script id="page-configurations">
@@ -50,7 +50,7 @@
   };
 </script>
 
-  <title>局域网互访虚机 | Pengchen's Blog</title>
+  <title>分库分表——3. 动态扩容缩容方案 | Pengchen's Blog</title>
   
 
 
@@ -166,7 +166,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-3-%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9%E7%BC%A9%E5%AE%B9%E6%96%B9%E6%A1%88/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -179,7 +179,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          局域网互访虚机
+          分库分表——3. 动态扩容缩容方案
         </h1>
 
         <div class="post-meta">
@@ -190,7 +190,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-19 15:10:27 / 修改时间：16:09:15" itemprop="dateCreated datePublished" datetime="2020-10-19T15:10:27+08:00">2020-10-19</time>
+              <time title="创建时间：2020-10-21 14:39:21 / 修改时间：16:29:57" itemprop="dateCreated datePublished" datetime="2020-10-21T14:39:21+08:00">2020-10-21</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -198,7 +198,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                  <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
                 </span>
             </span>
 
@@ -220,58 +220,61 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="局域网互访虚机"><a href="#局域网互访虚机" class="headerlink" title="局域网互访虚机"></a>局域网互访虚机</h1><ul>
-<li><a href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE">宿主机配置</a></li>
-<li><a href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE">虚机配置</a></li>
-<li><a href="#kvm%E9%85%8D%E7%BD%AE">kvm配置</a></li>
-</ul>
-<h2 id="宿主机配置"><a href="#宿主机配置" class="headerlink" title="宿主机配置"></a><span id="宿主机配置">宿主机配置</span></h2><p>找到/etc/network/interfaces，在后面添加</p>
-<pre><code>auto br0     //添加的桥接网卡，新的名字
-iface br0 inet static
-address 10.0.1.60    //宿主机IP
-netmask 255.255.254.0
-broadcast 10.0.1.255
-gateway 10.0.0.1
-dns-nameservers 114.114.114.114  
-bridge_ports enp0s31f6   //宿主机网卡名
-bridge_fd 9</code></pre>
-<p>然后在宿主机</p>
-<pre><code>sudo ifup br0</code></pre>
-<h2 id="虚机配置"><a href="#虚机配置" class="headerlink" title="虚机配置"></a><span id="虚机配置">虚机配置</span></h2><p>在 <strong>每台</strong> 虚机下配置</p>
-<p>/etc/hostname<br>sysctl kernel.hostname=yourhostname</p>
-<p>打开/etc/sysconfig/network-scripts/ifcfg-eth0，依照以下修改，注意：ONBOOT=yes和static。</p>
-<pre><code>HWADDR=52:54:00:2a:b9:f3
-TYPE=Ethernet  
-DEFROUTE=yes
-IPV4_FAILURE_FATAL=no
-IPV6INIT=yes
-IPV6_AUTOCONF=yes
-IPV6_DEFROUTE=yes
-IPV6_FAILURE_FATAL=no
-NAME=ens3   //虚机网卡名字
-UUID=f9c0608a-3290-4a44-b209-7c25aaa7fec8
-DEVICE=ens3  //虚机网卡名字
-ONBOOT=yes  //一定yes
-DNS1=114.114.114.114  //连外网必备
-IPADDR=10.0.0.152   //你要配的虚机网卡IP，0网段
-PREFIX=23  //。。
-GATEWAY=10.0.0.1  //。。
-IPV6_PEERDNS=yes
-IPV6_PEERROUTES=yes</code></pre>
-<h2 id="kvm配置"><a href="#kvm配置" class="headerlink" title="kvm配置"></a><span id="kvm配置">kvm配置</span></h2><p>打开每台虚机的kvm设置，点击感叹号，点击NIC，找到网络源，选择桥接br0，点击应用确定。然后强制关机再开机（你也可以等待重启）。然后就可以在局域网访问你的虚机了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a><span id="其他问题">其他问题</span></h2><h3 id="ubuntu环境设置DNS"><a href="#ubuntu环境设置DNS" class="headerlink" title="ubuntu环境设置DNS"></a>ubuntu环境设置DNS</h3><p>在Ubuntu环境下，打开网页非常缓慢，很可能是DNS设置异常的问题。</p>
-<ul>
-<li><p>方法1：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;network&#x2F;interfaces</span><br><span class="line">dns-nameservers 114.114.114.114</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>方法2：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf&#x2F;base  </span><br><span class="line">或者&#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf.d&#x2F;base</span><br><span class="line">修改为：</span><br><span class="line">nameserver 8.8.8.8</span><br><span class="line">nameserver 8.8.4.4</span><br><span class="line">然后执行resolvconf -u  </span><br></pre></td></tr></table></figure>
-
-<p>就能在/etc/resolv.conf文件中多出2行。<br>还有一种方式是修改/etc/resolvconf/resolv.conf/head，不过这个文件系统不建议修改。</p>
-</li>
-</ul>
+        <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-dynamic-expand.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<h3 id="停机扩容（不推荐）"><a href="#停机扩容（不推荐）" class="headerlink" title="停机扩容（不推荐）"></a>停机扩容（不推荐）</h3><p>&emsp;&emsp;这个方案就跟停机迁移一样，步骤几乎一致，唯一的一点就是那个导数的工具，是把现有库表的数据抽出来慢慢倒入到新的库和表里去。但是最好别这么玩儿，有点不太靠谱，因为既然<strong>分库分表</strong>就说明数据量实在是太大了，可能多达几亿条，甚至几十亿，你这么玩儿，可能会出问题。</p>
+<p>&emsp;&emsp;从单库单表迁移到分库分表的时候，数据量并不是很大，单表最大也就两三千万。那么你写个工具，多弄几台机器并行跑，1 小时数据就导完了。这没有问题。</p>
+<p>&emsp;&emsp;如果 3 个库 + 12 个表，跑了一段时间了，数据量都 1~2 亿了。光是导 2 亿数据，都要导个几个小时，6 点，刚刚导完数据，还要搞后续的修改配置，重启系统，测试验证，10 点才可以搞完。所以不能这么搞。</p>
+<h3 id="优化后的方案"><a href="#优化后的方案" class="headerlink" title="优化后的方案"></a>优化后的方案</h3><p>&emsp;&emsp;一开始上来就是 32 个库，每个库 32 个表，那么总共是 1024 张表。</p>
+<p>&emsp;&emsp;这个分法，第一，基本上国内的互联网肯定都是够用了，第二，无论是并发支撑还是数据量支撑都没问题。</p>
+<p>&emsp;&emsp;每个库正常承载的写入并发量是 1000，那么 32 个库就可以承载 32 * 1000 = 32000 的写并发，如果每个库承载 1500 的写并发，32 * 1500 = 48000 的写并发，接近 5 万每秒的写入并发，前面再加一个 MQ，削峰，每秒写入 MQ 8 万条数据，每秒消费 5 万条数据。</p>
+<p>&emsp;&emsp;有些除非是国内排名非常靠前的这些公司，他们的最核心的系统的数据库，可能会出现几百台数据库的这么一个规模，128 个库，256 个库，512 个库。</p>
+<p>&emsp;&emsp;1024 张表，假设每个表放 500 万数据，在 MySQL 里可以放 50 亿条数据。</p>
+<p>&emsp;&emsp;每秒 5 万的写并发，总共 50 亿条数据，对于国内大部分的互联网公司来说，其实一般来说都够了。</p>
+<p>&emsp;&emsp;谈分库分表的扩容，<strong>第一次分库分表，就一次性给他分个够</strong>，32 个库，1024 张表，可能对大部分的中小型互联网公司来说，已经可以支撑好几年了。</p>
+<p>&emsp;&emsp;一个实践是利用 <code>32 * 32</code> 来分库分表，即分为 32 个库，每个库里一个表分为 32 张表。一共就是 1024 张表。根据某个 id 先根据 32 取模路由到库，再根据 32 取模路由到库里的表。</p>
+<table>
+<thead>
+<tr>
+<th>orderId</th>
+<th>id % 32 (库)</th>
+<th>id / 32 % 32 (表)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>259</td>
+<td>3</td>
+<td>8</td>
+</tr>
+<tr>
+<td>1189</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>352</td>
+<td>0</td>
+<td>11</td>
+</tr>
+<tr>
+<td>4593</td>
+<td>17</td>
+<td>15</td>
+</tr>
+</tbody></table>
+<p>&emsp;&emsp;刚开始的时候，这个库可能就是逻辑库，建在一个数据库上的，就是一个 MySQL 服务器可能建了 n 个库，比如 32 个库。后面如果要拆分，就是不断在库和 MySQL 服务器之间做迁移就可以了。然后系统配合改一下配置即可。</p>
+<p>&emsp;&emsp;比如说最多可以扩展到 32 个数据库服务器，每个数据库服务器是一个库。如果还是不够？最多可以扩展到 1024 个数据库服务器，每个数据库服务器上面一个库一个表。因为最多是 1024 个表。</p>
+<p>&emsp;&emsp;这么搞，是不用自己写代码做数据迁移的，都交给 DBA 来搞好了，但是 DBA 确实是需要做一些库表迁移的工作，但是总比你自己写代码，然后抽数据导数据来的效率高得多吧。</p>
+<p>&emsp;&emsp;哪怕是要减少库的数量，也很简单，其实说白了就是按倍数缩容就可以了，然后修改一下路由规则。</p>
+<p>&emsp;&emsp;这里对步骤做一个总结：</p>
+<ol>
+<li>设定好几台数据库服务器，每台服务器上几个库，每个库多少个表，推荐是 32 库 * 32 表，对于大部分公司来说，可能几年都够了。</li>
+<li>路由的规则，orderId 模 32 = 库，orderId / 32 模 32 = 表。</li>
+<li>扩容的时候，申请增加更多的数据库服务器，装好 MySQL，呈倍数扩容，4 台服务器，扩到 8 台服务器，再到 16 台服务器。</li>
+<li>由 DBA 负责将原先数据库服务器的库，迁移到新的数据库服务器上去，库迁移是有一些便捷的工具的。</li>
+<li>我们这边就是修改一下配置，调整迁移的库所在数据库服务器的地址。</li>
+<li>重新发布系统，上线，原先的路由规则变都不用变，直接可以基于 n 倍的数据库服务器的资源，继续进行线上系统的提供服务。</li>
+</ol>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-dynamic-expand.md">1. database-shard-dynamic-expand</a></p>
 
     </div>
 
@@ -281,8 +284,8 @@ IPV6_PEERROUTES=yes</code></pre>
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="tag"># 虚拟机</a>
-              <a href="/tags/%E5%B1%80%E5%9F%9F%E7%BD%91/" rel="tag"># 局域网</a>
+              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
+              <a href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" rel="tag"># 分库分表</a>
           </div>
 
         
@@ -290,11 +293,11 @@ IPV6_PEERROUTES=yes</code></pre>
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/10/19/TwoSum/" rel="next" title="TwoSum">
-      TwoSum <i class="fa fa-chevron-right"></i>
+    <a href="/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/" rel="prev" title="分库分表——2. 迁移方案">
+      <i class="fa fa-chevron-left"></i> 分库分表——2. 迁移方案
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -354,7 +357,7 @@ IPV6_PEERROUTES=yes</code></pre>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA"><span class="nav-number">1.</span> <span class="nav-text">局域网互访虚机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">宿主机配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">1.2.</span> <span class="nav-text">虚机配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kvm%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">kvm配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">其他问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ubuntu%E7%8E%AF%E5%A2%83%E8%AE%BE%E7%BD%AEDNS"><span class="nav-number">1.4.1.</span> <span class="nav-text">ubuntu环境设置DNS</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">前言：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%9C%E6%9C%BA%E6%89%A9%E5%AE%B9%EF%BC%88%E4%B8%8D%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">2.</span> <span class="nav-text">停机扩容（不推荐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%90%8E%E7%9A%84%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">优化后的方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -504,7 +507,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '439f17dc4ab013bc1f54ec2784634bc3',
+      id          : '2878c554217aba81852c64b66ea431c7',
         language: 'zh-CN',
       distractionFreeMode: true
     });
