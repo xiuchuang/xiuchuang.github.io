@@ -23,24 +23,24 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前言：&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表动态切换到分库分表上？ 停机迁移方案&amp;emsp;&amp;emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。 &amp;e">
+  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 dubbo 工作原理 第一层：service 层，接口层，给服务提供者和消费者来实现的 第二层：config 层，配置层，主要是对 dubbo 进行各种配置的 第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信 第四层：regist">
 <meta property="og:type" content="article">
-<meta property="og:title" content="分库分表——2. 迁移方案">
-<meta property="og:url" content="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:title" content="Dubbo——2. Dubbo工作原理">
+<meta property="og:url" content="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="前言：&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表动态切换到分库分表上？ 停机迁移方案&amp;emsp;&amp;emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。 &amp;e">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 dubbo 工作原理 第一层：service 层，接口层，给服务提供者和消费者来实现的 第二层：config 层，配置层，主要是对 dubbo 进行各种配置的 第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信 第四层：regist">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-2.webp">
-<meta property="article:published_time" content="2020-10-21T03:51:51.000Z">
-<meta property="article:modified_time" content="2020-10-21T09:30:47.267Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png">
+<meta property="article:published_time" content="2020-10-23T00:58:52.000Z">
+<meta property="article:modified_time" content="2020-10-23T06:17:37.864Z">
 <meta property="article:author" content="Peng Chen">
-<meta property="article:tag" content="数据库">
-<meta property="article:tag" content="分库分表">
+<meta property="article:tag" content="Dubbo">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="RPC">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png">
 
-<link rel="canonical" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/">
+<link rel="canonical" href="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -53,7 +53,7 @@
   };
 </script>
 
-  <title>分库分表——2. 迁移方案 | Pengchen's Blog</title>
+  <title>Dubbo——2. Dubbo工作原理 | Pengchen's Blog</title>
   
 
 
@@ -169,7 +169,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-2-%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -182,7 +182,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          分库分表——2. 迁移方案
+          Dubbo——2. Dubbo工作原理
         </h1>
 
         <div class="post-meta">
@@ -193,7 +193,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-21 11:51:51 / 修改时间：17:30:47" itemprop="dateCreated datePublished" datetime="2020-10-21T11:51:51+08:00">2020-10-21</time>
+              <time title="创建时间：2020-10-23 08:58:52 / 修改时间：14:17:37" itemprop="dateCreated datePublished" datetime="2020-10-23T08:58:52+08:00">2020-10-23</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -201,7 +201,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Database/" itemprop="url" rel="index"><span itemprop="name">Database</span></a>
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index"><span itemprop="name">Dubbo</span></a>
                 </span>
             </span>
 
@@ -223,24 +223,28 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="前言："><a href="#前言：" class="headerlink" title="前言："></a>前言：</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-method.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
-<p>&emsp;&emsp;现在有一个未分库分表的系统，未来要分库分表，如何设计才可以让系统从未分库分表<strong>动态切换</strong>到分库分表上？</p>
-<h3 id="停机迁移方案"><a href="#停机迁移方案" class="headerlink" title="停机迁移方案"></a>停机迁移方案</h3><p>&emsp;&emsp;我先给你说一个最 low 的方案，就是很简单，大家伙儿凌晨 12 点开始运维，网站或者 app 挂个公告，说 0 点到早上 6 点进行运维，无法访问。</p>
-<p>&emsp;&emsp;接着到 0 点停机，系统停掉，没有流量写入了，此时老的单库单表数据库静止了。然后你之前得写好一个<strong>导数的一次性工具</strong>，此时直接跑起来，然后将单库单表的数据哗哗哗读出来，写到分库分表里面去。</p>
-<p>&emsp;&emsp;导数完了之后，就 ok 了，修改系统的数据库连接配置啥的，包括可能代码和 SQL 也许有修改，那你就用最新的代码，然后直接启动连到新的分库分表上去。</p>
-<p>&emsp;&emsp;验证一下，ok 了，完美，大家伸个懒腰，看看看凌晨 4 点钟的北京夜景，打个滴滴回家吧。</p>
-<p>&emsp;&emsp;但是这个方案比较 low，谁都能干，我们来看看高大上一点的方案。</p>
-<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-1.png" alt="database-shard-method-1"></a></p>
-<h3 id="双写迁移方案"><a href="#双写迁移方案" class="headerlink" title="双写迁移方案"></a>双写迁移方案</h3><p>&emsp;1. 将新的库配置为源库的从库用来同步数据；如果需要将数据同步到多库多表，那么可以使用一些第三方工具获取 Binlog 的增量日志（比如开源工具 Canal），在获取增量日志之后就可以按照分库分表的逻辑写入到新的库表中了。</p>
-<p>&emsp;2. 同时我们需要改造业务代码，在数据写入的时候不仅要写入旧库也要写入新库。当然，基于性能的考虑，我们可以异步地写入新库，只要保证旧库写入成功即可。但是我们需要注意的是，需要将写入新库失败的数据记录在单独的日志中，这样方便后续对这些数据补写，保证新库和旧库的数据一致性。</p>
-<p>&emsp;3. 然后我们就可以开始校验数据了。由于数据库中数据量很大，做全量的数据校验不太现实。你可以抽取部分数据，具体数据量依据总体数据量而定，只要保证这些数据是一致的就可以。</p>
-<p>&emsp;4. 双写时加开关，默认关闭双写，上线完成后关闭同步，同时打开开关，在低峰期的话数据丢失的概率不高。再配合数据校验的工作，是可以保证一致性的。</p>
-<p>&emsp;5. 如果一切顺利，我们就可以将读流量切换到新库了。由于担心一次切换全量读流量可能会对系统产生未知的影响，所以这里最好采用灰度的方式来切换，比如开始切换 10% 的流量，如果没有问题再切换到 50% 的流量，最后再切换到 100%。</p>
-<p>&emsp;6. 由于有双写的存在，所以在切换的过程中出现任何的问题都可以将读写流量随时切换到旧库去，保障系统的性能。</p>
-<p>&emsp;7. 在观察了几天发现数据的迁移没有问题之后，就可以将数据库的双写改造成只写新库，数据的迁移也就完成了。</p>
-<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/database/database-shard-method-2.webp" alt="database-shard-method-2"></a></p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/high-concurrency/database-shard-method.md">1. database-shard-method</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/ab2efddfafbd">2. 数据迁移之同步双写方案</a></p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-operating-principle.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<h3 id="dubbo-工作原理"><a href="#dubbo-工作原理" class="headerlink" title="dubbo 工作原理"></a>dubbo 工作原理</h3><ul>
+<li>第一层：service 层，接口层，给服务提供者和消费者来实现的</li>
+<li>第二层：config 层，配置层，主要是对 dubbo 进行各种配置的</li>
+<li>第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信</li>
+<li>第四层：registry 层，服务注册层，负责服务的注册与发现</li>
+<li>第五层：cluster 层，集群层，封装多个服务提供者的路由以及负载均衡，将多个实例组合成一个服务</li>
+<li>第六层：monitor 层，监控层，对 rpc 接口的调用次数和调用时间进行监控</li>
+<li>第七层：protocal 层，远程调用层，封装 rpc 调用</li>
+<li>第八层：exchange 层，信息交换层，封装请求响应模式，同步转异步</li>
+<li>第九层：transport 层，网络传输层，抽象 mina 和 netty 为统一接口</li>
+<li>第十层：serialize 层，数据序列化层</li>
+</ul>
+<h3 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h3><ul>
+<li>第一步：provider 向注册中心去注册</li>
+<li>第二步：consumer 从注册中心订阅服务，注册中心会通知 consumer 注册好的服务</li>
+<li>第三步：consumer 调用 provider</li>
+<li>第四步：consumer 和 provider 都异步通知监控中心</li>
+</ul>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png" alt="dubbo-operating-principle"></a></p>
+<h3 id="注册中心挂了可以继续通信吗？"><a href="#注册中心挂了可以继续通信吗？" class="headerlink" title="注册中心挂了可以继续通信吗？"></a>注册中心挂了可以继续通信吗？</h3><p>&emsp;&emsp;可以，因为刚开始初始化的时候，消费者会将提供者的地址等信息<strong>拉取到本地缓存</strong>，所以注册中心挂了可以继续通信。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-operating-principle.md">1. dubbo-operating-principle</a></p>
 
     </div>
 
@@ -250,8 +254,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># 数据库</a>
-              <a href="/tags/%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8/" rel="tag"># 分库分表</a>
+              <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag"># 分布式</a>
+              <a href="/tags/RPC/" rel="tag"># RPC</a>
           </div>
 
         
@@ -260,13 +265,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-1-%E5%9F%BA%E6%9C%AC%E4%BA%86%E8%A7%A3/" rel="prev" title="分库分表——1. 基本了解">
-      <i class="fa fa-chevron-left"></i> 分库分表——1. 基本了解
+    <a href="/2020/10/23/Dubbo-1-%E5%BC%95%E5%85%A5Dubbo/" rel="prev" title="Dubbo——1. 引入Dubbo">
+      <i class="fa fa-chevron-left"></i> Dubbo——1. 引入Dubbo
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/10/21/%E6%95%B0%E6%8D%AE%E5%BA%93%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8-3-%E5%8A%A8%E6%80%81%E6%89%A9%E5%AE%B9%E7%BC%A9%E5%AE%B9%E6%96%B9%E6%A1%88/" rel="next" title="分库分表——3. 动态扩容缩容方案">
-      分库分表——3. 动态扩容缩容方案 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -326,7 +328,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80%EF%BC%9A"><span class="nav-number">1.</span> <span class="nav-text">前言：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%9C%E6%9C%BA%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88"><span class="nav-number">2.</span> <span class="nav-text">停机迁移方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%8C%E5%86%99%E8%BF%81%E7%A7%BB%E6%96%B9%E6%A1%88"><span class="nav-number">3.</span> <span class="nav-text">双写迁移方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">dubbo 工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E6%8C%82%E4%BA%86%E5%8F%AF%E4%BB%A5%E7%BB%A7%E7%BB%AD%E9%80%9A%E4%BF%A1%E5%90%97%EF%BC%9F"><span class="nav-number">4.</span> <span class="nav-text">注册中心挂了可以继续通信吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -476,7 +478,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : 'eb766cbf784ed3116a499aa2fc5e2f8f',
+      id          : '4ca3314ca4a3d23723657a6c6d4573aa',
         language: 'zh-CN',
       distractionFreeMode: true
     });

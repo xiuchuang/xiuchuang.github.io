@@ -814,7 +814,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-23 08:36:12 / 修改时间：08:42:21" itemprop="dateCreated datePublished" datetime="2020-10-23T08:36:12+08:00">2020-10-23</time>
+              <time title="创建时间：2020-10-23 08:36:12 / 修改时间：08:58:38" itemprop="dateCreated datePublished" datetime="2020-10-23T08:36:12+08:00">2020-10-23</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -839,14 +839,12 @@
       
           <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/why-dubbo.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
 <p>&emsp;&emsp;为什么要进行系统拆分？如何进行系统拆分？拆分后不用 dubbo 可以吗？</p>
-<h2 id="面试官心理分析"><a href="#面试官心理分析" class="headerlink" title="面试官心理分析"></a>面试官心理分析</h2><p>&emsp;&emsp;从这个问题开始就进行分布式系统环节了，现在出去面试分布式都成标配了，没有哪个公司不问问你分布式的事儿。你要是不会分布式的东西，简直这简历没法看，没人会让你去面试。</p>
 <p>&emsp;&emsp;其实为啥会这样呢？这就是因为整个大行业技术发展的原因。</p>
 <p>&emsp;&emsp;早些年，印象中在 2010 年初的时候，整个 IT 行业，很少有人谈分布式，更不用说微服务，虽然很多 BAT 等大型公司，因为系统的复杂性，很早就是分布式架构，大量的服务，只不过微服务大多基于自己搞的一套框架来实现而已。</p>
 <p>&emsp;&emsp;但是确实，那个年代，大家很重视 ssh2，很多中小型公司几乎大部分都是玩儿 struts2、spring、hibernate，稍晚一些，才进入了 spring mvc、spring、mybatis 的组合。那个时候整个行业的技术水平就是那样，当年 oracle 很火，oracle 管理员很吃香，oracle 性能优化啥的都是 IT 男的大杀招啊。连大数据都没人提，当年 OCP、OCM 等认证培训机构，火的不行。</p>
 <p>&emsp;&emsp;但是确实随着时代的发展，慢慢的，很多公司开始接受分布式系统架构了，这里面尤为对行业有至关重要影响的，是阿里的 dubbo，<strong>某种程度上而言，阿里在这里推动了行业技术的前进</strong>。</p>
 <p>&emsp;&emsp;正是因为有阿里的 dubbo，很多中小型公司才可以基于 dubbo，来把系统拆分成很多的服务，每个人负责一个服务，大家的代码都没有冲突，服务可以自治，自己选用什么技术都可以，每次发布如果就改动一个服务那就上线一个服务好了，不用所有人一起联调，每次发布都是几十万行代码，甚至几百万行代码了。</p>
-<p>&emsp;&emsp;直到今日，很高兴看到分布式系统都成行业面试标配了，任何一个普通的程序员都该掌握这个东西，其实这是行业的进步，也是所有 IT 码农的技术进步。所以既然分布式都成标配了，那么面试官当然会问了，因为很多公司现在都是分布式、微服务的架构，那面试官当然得考察考察你了。</p>
-<h2 id="面试题剖析"><a href="#面试题剖析" class="headerlink" title="面试题剖析"></a>面试题剖析</h2><h3 id="为什么要将系统进行拆分？"><a href="#为什么要将系统进行拆分？" class="headerlink" title="为什么要将系统进行拆分？"></a>为什么要将系统进行拆分？</h3><p>&emsp;&emsp;网上查查，答案极度零散和复杂，很琐碎，原因一大坨。但是我这里给大家直观的感受：</p>
+<h3 id="为什么要将系统进行拆分？"><a href="#为什么要将系统进行拆分？" class="headerlink" title="为什么要将系统进行拆分？"></a>为什么要将系统进行拆分？</h3><p>&emsp;&emsp;网上查查，答案极度零散和复杂，很琐碎，原因一大坨。但是我这里给大家直观的感受：</p>
 <p>&emsp;&emsp;要是<strong>不拆分</strong>，一个大系统几十万行代码，20 个人维护一份代码，简直是悲剧啊。代码经常改着改着就冲突了，各种代码冲突和合并要处理，非常耗费时间；经常我改动了我的代码，你调用了我的，导致你的代码也得重新测试，麻烦的要死；然后每次发布都是几十万行代码的系统一起发布，大家得一起提心吊胆准备上线，几十万行代码的上线，可能每次上线都要做很多的检查，很多异常问题的处理，简直是又麻烦又痛苦；而且如果我现在打算把技术升级到最新的 spring 版本，还不行，因为这可能导致你的代码报错，我不敢随意乱改技术。</p>
 <p>&emsp;&emsp;假设一个系统是 20 万行代码，其中 A 在里面改了 1000 行代码，但是此时发布的时候是这个 20 万行代码的大系统一块儿发布。就意味着 20 万上代码在线上就可能出现各种变化，20 个人，每个人都要紧张地等在电脑面前，上线之后，检查日志，看自己负责的那一块儿有没有什么问题。</p>
 <p>&emsp;&emsp;A 就检查了自己负责的 1 万行代码对应的功能，确保 ok 就闪人了；结果不巧的是，A 上线的时候不小心修改了线上机器的某个配置，导致另外 B 和 C 负责的 2 万行代码对应的一些功能，出错了。</p>
@@ -854,7 +852,7 @@
 <p><strong>&emsp;&emsp;拆分了以后</strong>，整个世界清爽了，几十万行代码的系统，拆分成 20 个服务，平均每个服务就 1~2 万行代码，每个服务部署到单独的机器上。20 个工程，20 个 git 代码仓库，20 个开发人员，每个人维护自己的那个服务就可以了，是自己独立的代码，跟别人没关系。再也没有代码冲突了，爽。每次就测试我自己的代码就可以了，爽。每次就发布我自己的一个小服务就可以了，爽。技术上想怎么升级就怎么升级，保持接口不变就可以了，真爽。</p>
 <p>&emsp;&emsp;所以简单来说，一句话总结，如果是那种代码量多达几十万行的中大型项目，团队里有几十个人，那么如果不拆分系统，<strong>开发效率极其低下</strong>，问题很多。但是拆分系统之后，每个人就负责自己的一小部分就好了，可以随便玩儿随便弄。分布式系统拆分之后，可以大幅度提升复杂系统大型团队的开发效率。</p>
 <p>&emsp;&emsp;但是同时，也要<strong>提醒</strong>的一点是，系统拆分成分布式系统之后，大量的分布式系统面临的问题也是接踵而来，所以后面的问题都是在<strong>围绕分布式系统带来的复杂技术挑战</strong>在说。</p>
-<h3 id="如何进行系统拆分？"><a href="#如何进行系统拆分？" class="headerlink" title="如何进行系统拆分？"></a>如何进行系统拆分？</h3><p>&emsp;&emsp;这个问题说大可以很大，可以扯到领域驱动模型设计上去，说小了也很小，我不太想给大家太过于学术的说法，因为你也不可能背这个答案，过去了直接说吧。还是说的简单一点，大家自己到时候知道怎么回答就行了。</p>
+<h3 id="如何进行系统拆分？"><a href="#如何进行系统拆分？" class="headerlink" title="如何进行系统拆分？"></a>如何进行系统拆分？</h3><p>&emsp;&emsp;这个问题说大可以很大，可以扯到领域驱动模型设计上去，说小了也很小。</p>
 <p>&emsp;&emsp;系统拆分为分布式系统，拆成多个服务，拆成微服务的架构，是需要拆很多轮的。并不是说上来一个架构师一次就给拆好了，而以后都不用拆。</p>
 <p>&emsp;&emsp;第一轮；团队继续扩大，拆好的某个服务，刚开始是 1 个人维护 1 万行代码，后来业务系统越来越复杂，这个服务是 10 万行代码，5 个人；第二轮，1 个服务 -&gt; 5 个服务，每个服务 2 万行代码，每人负责一个服务。</p>
 <p>&emsp;&emsp;如果是多人维护一个服务，最理想的情况下，几十个人，1 个人负责 1 个或 2~3 个服务；某个服务工作量变大了，代码量越来越多，某个同学，负责一个服务，代码量变成了 10 万行了，他自己不堪重负，他现在一个人拆开，5 个服务，1 个人顶着，负责 5 个人，接着招人，2 个人，给那个同学带着，3 个人负责 5 个服务，其中 2 个人每个人负责 2 个服务，1 个人负责 1 个服务。</p>
@@ -865,6 +863,95 @@
 <h3 id="拆分后不用-dubbo-可以吗？"><a href="#拆分后不用-dubbo-可以吗？" class="headerlink" title="拆分后不用 dubbo 可以吗？"></a>拆分后不用 dubbo 可以吗？</h3><p>&emsp;&emsp;当然可以了，大不了最次，就是各个系统之间，直接基于 spring mvc，就纯 http 接口互相通信呗，还能咋样。但是这个肯定是有问题的，因为 http 接口通信维护起来成本很高，你要考虑<strong>超时重试</strong>、<strong>负载均衡</strong>等等各种乱七八糟的问题，比如说你的订单系统调用商品系统，商品系统部署了 5 台机器，你怎么把请求均匀地甩给那 5 台机器？这不就是负载均衡？你要是都自己搞那是可以的，但是确实很痛苦。</p>
 <p>&emsp;&emsp;所以 dubbo 说白了，是一种 rpc 框架，就是说本地就是进行接口调用，但是 dubbo 会代理这个调用请求，跟远程机器网络通信，给你处理掉负载均衡、服务实例上下线自动感知、超时重试等等乱七八糟的问题。那你就不用自己做了，用 dubbo 就可以了。</p>
 <h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/why-dubbo.md">1. why-dubbo</a></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Peng Chen">
+      <meta itemprop="description" content="Pengchen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pengchen's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/" class="post-title-link" itemprop="url">Dubbo——2. Dubbo工作原理</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-10-23 08:58:52 / 修改时间：14:17:37" itemprop="dateCreated datePublished" datetime="2020-10-23T08:58:52+08:00">2020-10-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index"><span itemprop="name">Dubbo</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-operating-principle.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<h3 id="dubbo-工作原理"><a href="#dubbo-工作原理" class="headerlink" title="dubbo 工作原理"></a>dubbo 工作原理</h3><ul>
+<li>第一层：service 层，接口层，给服务提供者和消费者来实现的</li>
+<li>第二层：config 层，配置层，主要是对 dubbo 进行各种配置的</li>
+<li>第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信</li>
+<li>第四层：registry 层，服务注册层，负责服务的注册与发现</li>
+<li>第五层：cluster 层，集群层，封装多个服务提供者的路由以及负载均衡，将多个实例组合成一个服务</li>
+<li>第六层：monitor 层，监控层，对 rpc 接口的调用次数和调用时间进行监控</li>
+<li>第七层：protocal 层，远程调用层，封装 rpc 调用</li>
+<li>第八层：exchange 层，信息交换层，封装请求响应模式，同步转异步</li>
+<li>第九层：transport 层，网络传输层，抽象 mina 和 netty 为统一接口</li>
+<li>第十层：serialize 层，数据序列化层</li>
+</ul>
+<h3 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h3><ul>
+<li>第一步：provider 向注册中心去注册</li>
+<li>第二步：consumer 从注册中心订阅服务，注册中心会通知 consumer 注册好的服务</li>
+<li>第三步：consumer 调用 provider</li>
+<li>第四步：consumer 和 provider 都异步通知监控中心</li>
+</ul>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png" alt="dubbo-operating-principle"></a></p>
+<h3 id="注册中心挂了可以继续通信吗？"><a href="#注册中心挂了可以继续通信吗？" class="headerlink" title="注册中心挂了可以继续通信吗？"></a>注册中心挂了可以继续通信吗？</h3><p>&emsp;&emsp;可以，因为刚开始初始化的时候，消费者会将提供者的地址等信息<strong>拉取到本地缓存</strong>，所以注册中心挂了可以继续通信。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-operating-principle.md">1. dubbo-operating-principle</a></p>
 
       
     </div>
@@ -1110,133 +1197,11 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Peng Chen">
-      <meta itemprop="description" content="Pengchen">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pengchen's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/" class="post-title-link" itemprop="url">局域网互访虚机</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2020-10-19 15:10:27" itemprop="dateCreated datePublished" datetime="2020-10-19T15:10:27+08:00">2020-10-19</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-22 16:58:05" itemprop="dateModified" datetime="2020-10-22T16:58:05+08:00">2020-10-22</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="局域网互访虚机"><a href="#局域网互访虚机" class="headerlink" title="局域网互访虚机"></a>局域网互访虚机</h1><ul>
-<li><a href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE">宿主机配置</a></li>
-<li><a href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE">虚机配置</a></li>
-<li><a href="#kvm%E9%85%8D%E7%BD%AE">kvm配置</a></li>
-</ul>
-<h2 id="宿主机配置"><a href="#宿主机配置" class="headerlink" title="宿主机配置"></a><span id="宿主机配置">宿主机配置</span></h2><p>找到/etc/network/interfaces，在后面添加</p>
-<pre><code>auto br0     //添加的桥接网卡，新的名字
-iface br0 inet static
-address 10.0.1.60    //宿主机IP
-netmask 255.255.254.0
-broadcast 10.0.1.255
-gateway 10.0.0.1
-dns-nameservers 114.114.114.114  
-bridge_ports enp0s31f6   //宿主机网卡名
-bridge_fd 9</code></pre>
-<p>然后在宿主机</p>
-<pre><code>sudo ifup br0</code></pre>
-<h2 id="虚机配置"><a href="#虚机配置" class="headerlink" title="虚机配置"></a><span id="虚机配置">虚机配置</span></h2><p>在 <strong>每台</strong> 虚机下配置</p>
-<p>/etc/hostname<br>sysctl kernel.hostname=yourhostname</p>
-<p>打开/etc/sysconfig/network-scripts/ifcfg-eth0，依照以下修改，注意：ONBOOT=yes和static。</p>
-<pre><code>HWADDR=52:54:00:2a:b9:f3
-TYPE=Ethernet  
-DEFROUTE=yes
-IPV4_FAILURE_FATAL=no
-IPV6INIT=yes
-IPV6_AUTOCONF=yes
-IPV6_DEFROUTE=yes
-IPV6_FAILURE_FATAL=no
-NAME=ens3   //虚机网卡名字
-UUID=f9c0608a-3290-4a44-b209-7c25aaa7fec8
-DEVICE=ens3  //虚机网卡名字
-ONBOOT=yes  //一定yes
-DNS1=114.114.114.114  //连外网必备
-IPADDR=10.0.0.152   //你要配的虚机网卡IP，0网段
-PREFIX=23  //。。
-GATEWAY=10.0.0.1  //。。
-IPV6_PEERDNS=yes
-IPV6_PEERROUTES=yes</code></pre>
-<h2 id="kvm配置"><a href="#kvm配置" class="headerlink" title="kvm配置"></a><span id="kvm配置">kvm配置</span></h2><p>打开每台虚机的kvm设置，点击感叹号，点击NIC，找到网络源，选择桥接br0，点击应用确定。然后强制关机再开机（你也可以等待重启）。然后就可以在局域网访问你的虚机了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a><span id="其他问题">其他问题</span></h2><h3 id="ubuntu环境设置DNS"><a href="#ubuntu环境设置DNS" class="headerlink" title="ubuntu环境设置DNS"></a>ubuntu环境设置DNS</h3><p>在Ubuntu环境下，打开网页非常缓慢，很可能是DNS设置异常的问题。</p>
-<ul>
-<li><p>方法1：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;network&#x2F;interfaces</span><br><span class="line">dns-nameservers 114.114.114.114</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>方法2：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf&#x2F;base  </span><br><span class="line">或者&#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf.d&#x2F;base</span><br><span class="line">修改为：</span><br><span class="line">nameserver 8.8.8.8</span><br><span class="line">nameserver 8.8.4.4</span><br><span class="line">然后执行resolvconf -u  </span><br></pre></td></tr></table></figure>
-
-<p>就能在/etc/resolv.conf文件中多出2行。<br>还有一种方式是修改/etc/resolvconf/resolv.conf/head，不过这个文件系统不建议修改。</p>
-</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+  </nav>
 
 
 
@@ -1301,7 +1266,7 @@ IPV6_PEERROUTES=yes</code></pre>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
