@@ -23,22 +23,24 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;一个分布式系统中的某个接口，该如何保证幂等性？这个事儿其实是你做分布式系统的时候必须要考虑的一个生产环境的技术问题。啥意思呢？ &amp;emsp;&amp;emsp;你看，假如你有个服务提供一些接口供外部调用，这个服务部署在了 5 台机器上，接着有个接口就是付款接口。然后人家用户在前端上操作的时候，不知道为">
+  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;其实分布式系统接口的调用顺序，也是个问题，一般来说是不用保证顺序的。但是有时候可能确实是需要严格的顺序保证。给大家举个例子，你服务 A 调用服务 B，先插入再删除。好，结果俩请求过去了，落在不同机器上，可能插入请求因为某些原因执行慢了一些，导致删除请求先执行了，此时因为没数据所以啥效果也没有；">
 <meta property="og:type" content="article">
-<meta property="og:title" content="分布式系统设计——1. 接口幂等性">
-<meta property="og:url" content="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/index.html">
+<meta property="og:title" content="分布式系统设计——2. 接口请求顺序性">
+<meta property="og:url" content="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;一个分布式系统中的某个接口，该如何保证幂等性？这个事儿其实是你做分布式系统的时候必须要考虑的一个生产环境的技术问题。啥意思呢？ &amp;emsp;&amp;emsp;你看，假如你有个服务提供一些接口供外部调用，这个服务部署在了 5 台机器上，接着有个接口就是付款接口。然后人家用户在前端上操作的时候，不知道为">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;其实分布式系统接口的调用顺序，也是个问题，一般来说是不用保证顺序的。但是有时候可能确实是需要严格的顺序保证。给大家举个例子，你服务 A 调用服务 B，先插入再删除。好，结果俩请求过去了，落在不同机器上，可能插入请求因为某些原因执行慢了一些，导致删除请求先执行了，此时因为没数据所以啥效果也没有；">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-10-25T02:08:01.000Z">
-<meta property="article:modified_time" content="2020-10-25T02:08:12.857Z">
+<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/distributed-system-request-sequence.png">
+<meta property="article:published_time" content="2020-10-25T02:15:11.000Z">
+<meta property="article:modified_time" content="2020-10-25T02:22:13.691Z">
 <meta property="article:author" content="Peng Chen">
 <meta property="article:tag" content="分布式">
 <meta property="article:tag" content="RPC">
 <meta property="article:tag" content="系统设计">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/distributed-system-request-sequence.png">
 
-<link rel="canonical" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/">
+<link rel="canonical" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/">
 
 
 <script id="page-configurations">
@@ -51,7 +53,7 @@
   };
 </script>
 
-  <title>分布式系统设计——1. 接口幂等性 | Pengchen's Blog</title>
+  <title>分布式系统设计——2. 接口请求顺序性 | Pengchen's Blog</title>
   
 
 
@@ -167,7 +169,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -180,7 +182,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          分布式系统设计——1. 接口幂等性
+          分布式系统设计——2. 接口请求顺序性
         </h1>
 
         <div class="post-meta">
@@ -191,7 +193,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-25 10:08:01 / 修改时间：10:08:12" itemprop="dateCreated datePublished" datetime="2020-10-25T10:08:01+08:00">2020-10-25</time>
+              <time title="创建时间：2020-10-25 10:15:11 / 修改时间：10:22:13" itemprop="dateCreated datePublished" datetime="2020-10-25T10:15:11+08:00">2020-10-25</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,22 +223,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-idempotency.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
-<p>&emsp;&emsp;一个分布式系统中的某个接口，该如何保证幂等性？这个事儿其实是你做分布式系统的时候必须要考虑的一个生产环境的技术问题。啥意思呢？</p>
-<p>&emsp;&emsp;你看，假如你有个服务提供一些接口供外部调用，这个服务部署在了 5 台机器上，接着有个接口就是<strong>付款接口</strong>。然后人家用户在前端上操作的时候，不知道为啥，总之就是一个订单<strong>不小心发起了两次支付请求</strong>，然后这俩请求分散在了这个服务部署的不同的机器上，好了，结果一个订单扣款扣两次。</p>
-<p>&emsp;&emsp;或者是订单系统调用支付系统进行支付，结果不小心因为<strong>网络超时</strong>了，然后订单系统走了前面我们看到的那个重试机制，咔嚓给你重试了一把，好，支付系统收到一个支付请求两次，而且因为负载均衡算法落在了不同的机器上，尴尬了。。。</p>
-<p>&emsp;&emsp;所以你肯定得知道这事儿，否则你做出来的分布式系统恐怕容易埋坑。</p>
-<p>&emsp;&emsp;这个不是技术问题，这个没有通用的一个方法，这个应该<strong>结合业务</strong>来保证幂等性。</p>
-<p>&emsp;&emsp;所谓<strong>幂等性</strong>，就是说一个接口，多次发起同一个请求，你这个接口得保证结果是准确的，比如不能多扣款、不能多插入一条数据、不能将统计值多加了 1。这就是幂等性。</p>
-<p>&emsp;&emsp;其实保证幂等性主要是三点：</p>
-<ul>
-<li>对于每个请求必须有一个唯一的标识，举个栗子：订单支付请求，肯定得包含订单 id，一个订单 id 最多支付一次，对吧。</li>
-<li>每次处理完请求之后，必须有一个记录标识这个请求处理过了。常见的方案是在 mysql 中记录个状态啥的，比如支付之前记录一条这个订单的支付流水。</li>
-<li>每次接收请求需要进行判断，判断之前是否处理过。比如说，如果有一个订单已经支付了，就已经有了一条支付流水，那么如果重复发送这个请求，则此时先插入支付流水，orderId 已经存在了，唯一键约束生效，报错插入不进去的。然后你就不用再扣款了。</li>
-</ul>
-<p>&emsp;&emsp;实际运作过程中，你要结合自己的业务来，比如说利用 Redis，用 orderId 作为唯一键。只有成功插入这个支付流水，才可以执行实际的支付扣款。</p>
-<p>&emsp;&emsp;要求是支付一个订单，必须插入一条支付流水，order_id 建一个唯一键 <code>unique key</code> 。你在支付一个订单之前，先插入一条支付流水，order_id 就已经进去了。你就可以写一个标识到 Redis 里面去， <code>set order_id payed</code> ，下一次重复请求过来了，先查 Redis 的 order_id 对应的 value，如果是 <code>payed</code> 就说明已经支付过了，你就别重复支付了。</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-idempotency.md">1. distributed-system-idempotenc</a></p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-request-sequence.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<p>&emsp;&emsp;其实分布式系统接口的调用顺序，也是个问题，一般来说是不用保证顺序的。但是<strong>有时候</strong>可能确实是需要<strong>严格的顺序</strong>保证。给大家举个例子，你服务 A 调用服务 B，先插入再删除。好，结果俩请求过去了，落在不同机器上，可能插入请求因为某些原因执行慢了一些，导致删除请求先执行了，此时因为没数据所以啥效果也没有；结果这个时候插入请求过来了，好，数据插入进去了，那就尴尬了。</p>
+<p>&emsp;&emsp;本来应该是 “先插入 -&gt; 再删除”，这条数据应该没了，结果现在 “先删除 -&gt; 再插入”，数据还存在，最后你死都想不明白是怎么回事。</p>
+<p>&emsp;&emsp;所以这都是分布式系统一些很常见的问题。</p>
+<p>&emsp;&emsp;首先，一般来说，个人建议是，你们从业务逻辑上设计的这个系统最好是不需要这种顺序性的保证，因为一旦引入顺序性保障，比如使用<strong>分布式锁</strong>，会<strong>导致系统复杂度上升</strong>，而且会带来<strong>效率低下</strong>，热点数据压力过大等问题。</p>
+<p>&emsp;&emsp;下面我给个我们用过的方案吧，简单来说，首先你得用 Dubbo 的一致性 hash 负载均衡策略，将比如某一个订单 id 对应的请求都给分发到某个机器上去，接着就是在那个机器上，因为可能还是多线程并发执行的，你可能得立即将某个订单 id 对应的请求扔一个<strong>内存队列</strong>里去，强制排队，这样来确保他们的顺序性。</p>
+<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/distributed-system-request-sequence.png" alt="distributed-system-request-sequence"></a></p>
+<p>&emsp;&emsp;但是这样引发的后续问题就很多，比如说要是某个订单对应的请求特别多，造成某台机器成<strong>热点</strong>怎么办？解决这些问题又要开启后续一连串的复杂技术方案…… 曾经这类问题弄的我们头疼不已，所以，还是建议什么呢？</p>
+<p>&emsp;&emsp;最好是比如说刚才那种，一个订单的插入和删除操作，能不能合并成一个操作，就是一个删除，或者是其它什么，避免这种问题的产生。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-request-sequence.md">1. distributed-system-request-sequence</a></p>
 
     </div>
 
@@ -257,8 +253,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/25/Dubbo-6-Dubbo%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" rel="prev" title="Dubbo——6. Dubbo服务治理">
-      <i class="fa fa-chevron-left"></i> Dubbo——6. Dubbo服务治理
+    <a href="/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/" rel="prev" title="分布式系统设计——1. 接口幂等性">
+      <i class="fa fa-chevron-left"></i> 分布式系统设计——1. 接口幂等性
     </a></div>
       <div class="post-nav-item"></div>
     </div>
@@ -334,7 +330,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">18</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -470,7 +466,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '4205c953320c1e0c05d5a66e61fc697b',
+      id          : '7ff1993357f75650e7ec3606706dfe6e',
         language: 'zh-CN',
       distractionFreeMode: true
     });
