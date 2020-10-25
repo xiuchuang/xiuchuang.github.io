@@ -23,22 +23,21 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;举个栗子，说个最简单的回答思路：  上来你的服务就得去注册中心注册吧，你是不是得有个注册中心，保留各个服务的信息，可以用 zookeeper 来做，对吧。 然后你的消费者需要去注册中心拿对应的服务信息吧，对吧，而且每个服务可能会存在于多台机器上。 接着你就该发起一次请求了，咋发起？当然是基于动">
+  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 分布式系统 CAP 定理 P 代表什么含义&amp;emsp;&amp;emsp;作者之前在看 CAP 定理时抱有很大的疑惑，CAP 定理的定义是指在分布式系统中三者只能满足其二，也就是存在分布式 CA 系统的。作者在网络上查阅了很多关于 CAP 文章，虽然这些文章对于 P 的解释五花八门，但总结下来这些观点大多都是指 P 是不可缺">
 <meta property="og:type" content="article">
-<meta property="og:title" content="分布式系统设计——3. RPC 框架简单设计">
-<meta property="og:url" content="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:title" content="分布式系统原理——1. CAP定理">
+<meta property="og:url" content="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-1-CAP%E5%AE%9A%E7%90%86/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;举个栗子，说个最简单的回答思路：  上来你的服务就得去注册中心注册吧，你是不是得有个注册中心，保留各个服务的信息，可以用 zookeeper 来做，对吧。 然后你的消费者需要去注册中心拿对应的服务信息吧，对吧，而且每个服务可能会存在于多台机器上。 接着你就该发起一次请求了，咋发起？当然是基于动">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 分布式系统 CAP 定理 P 代表什么含义&amp;emsp;&amp;emsp;作者之前在看 CAP 定理时抱有很大的疑惑，CAP 定理的定义是指在分布式系统中三者只能满足其二，也就是存在分布式 CA 系统的。作者在网络上查阅了很多关于 CAP 文章，虽然这些文章对于 P 的解释五花八门，但总结下来这些观点大多都是指 P 是不可缺">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-10-25T02:32:18.000Z">
-<meta property="article:modified_time" content="2020-10-25T02:34:56.792Z">
+<meta property="article:modified_time" content="2020-10-25T02:57:48.124Z">
 <meta property="article:author" content="Peng Chen">
 <meta property="article:tag" content="分布式">
-<meta property="article:tag" content="RPC">
-<meta property="article:tag" content="系统设计">
+<meta property="article:tag" content="系统原理">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1/">
+<link rel="canonical" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-1-CAP%E5%AE%9A%E7%90%86/">
 
 
 <script id="page-configurations">
@@ -51,7 +50,7 @@
   };
 </script>
 
-  <title>分布式系统设计——3. RPC 框架简单设计 | Pengchen's Blog</title>
+  <title>分布式系统原理——1. CAP定理 | Pengchen's Blog</title>
   
 
 
@@ -167,7 +166,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-1-CAP%E5%AE%9A%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -180,7 +179,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          分布式系统设计——3. RPC 框架简单设计
+          分布式系统原理——1. CAP定理
         </h1>
 
         <div class="post-meta">
@@ -191,7 +190,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-25 10:32:18 / 修改时间：10:34:56" itemprop="dateCreated datePublished" datetime="2020-10-25T10:32:18+08:00">2020-10-25</time>
+              <time title="创建时间：2020-10-25 10:32:18 / 修改时间：10:57:48" itemprop="dateCreated datePublished" datetime="2020-10-25T10:32:18+08:00">2020-10-25</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,18 +220,58 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-rpc-design.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
-<p>&emsp;&emsp;举个栗子，说个最简单的回答思路：</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-cap.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<h3 id="分布式系统-CAP-定理-P-代表什么含义"><a href="#分布式系统-CAP-定理-P-代表什么含义" class="headerlink" title="分布式系统 CAP 定理 P 代表什么含义"></a>分布式系统 CAP 定理 P 代表什么含义</h3><p>&emsp;&emsp;作者之前在看 CAP 定理时抱有很大的疑惑，CAP 定理的定义是指在分布式系统中三者只能满足其二，也就是存在分布式 CA 系统的。作者在网络上查阅了很多关于 CAP 文章，虽然这些文章对于 P 的解释五花八门，但总结下来这些观点大多都是指 P 是不可缺少的，也就是说在分布式系统只能是 AP 或者 CP，这种理论与我之前所认识的理论（存在分布式 CA 系统）是冲突的，所以才有了疑惑。</p>
+<blockquote>
+<p>这个定理起源于加州大学柏克莱分校（University of California, Berkeley）的计算机科学家埃里克·布鲁尔在 2000 年的分布式计算原理研讨会（PODC）上提出的一个猜想。 在 2002 年，麻省理工学院（MIT）的赛斯·吉尔伯特和南希·林奇发表了布鲁尔猜想的证明，使之成为一个定理。</p>
+</blockquote>
+<h4 id="什么是-CAP-定理（CAP-theorem）"><a href="#什么是-CAP-定理（CAP-theorem）" class="headerlink" title="什么是 CAP 定理（CAP theorem）"></a>什么是 CAP 定理（CAP theorem）</h4><p>&emsp;&emsp;在理论计算机科学中，CAP 定理（CAP theorem），又被称作布鲁尔定理（Brewer’s theorem），它指出对于一个分布式计算系统来说，不可能同时满足以下三点：</p>
 <ul>
-<li>上来你的服务就得去注册中心注册吧，你是不是得有个注册中心，保留各个服务的信息，可以用 zookeeper 来做，对吧。</li>
-<li>然后你的消费者需要去注册中心拿对应的服务信息吧，对吧，而且每个服务可能会存在于多台机器上。</li>
-<li>接着你就该发起一次请求了，咋发起？当然是基于动态代理了，你面向接口获取到一个动态代理，这个动态代理就是接口在本地的一个代理，然后这个代理会找到服务对应的机器地址。</li>
-<li>然后找哪个机器发送请求？那肯定得有个负载均衡算法了，比如最简单的可以随机轮询是不是。</li>
-<li>接着找到一台机器，就可以跟它发送请求了，第一个问题咋发送？你可以说用 netty 了，nio 方式；第二个问题发送啥格式数据？你可以说用 hessian 序列化协议了，或者是别的，对吧。然后请求过去了。</li>
-<li>服务器那边一样的，需要针对你自己的服务生成一个动态代理，监听某个网络端口了，然后代理你本地的服务代码。接收到请求的时候，就调用对应的服务代码，对吧。</li>
+<li>一致性（Consistency） （等同于所有节点访问同一份最新的数据副本）</li>
+<li>可用性（Availability）（每次请求都能获取到非错的响应——但是不保证获取的数据为最新数据）</li>
+<li>分区容错性（Partition tolerance）（以实际效果而言，分区相当于对通信的时限要求。系统如果不能在时限内达成数据一致性，就意味着发生了分区的情况，必须就当前操作在 C 和 A 之间做出选择。）</li>
 </ul>
-<p>&emsp;&emsp;这就是一个最最基本的 rpc 框架的思路。</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-rpc-design.md">1. dubbo-rpc-design</a></p>
+<h4 id="分区容错性（Partition-tolerance）"><a href="#分区容错性（Partition-tolerance）" class="headerlink" title="分区容错性（Partition tolerance）"></a>分区容错性（Partition tolerance）</h4><p>&emsp;&emsp;理解 CAP 理论的最简单方式是想象两个节点分处分区两侧。允许至少一个节点更新状态会导致数据不一致，即丧失了 C 性质。如果为了保证数据一致性，将分区一侧的节点设置为不可用，那么又丧失了 A 性质。除非两个节点可以互相通信，才能既保证 C 又保证 A，这又会导致丧失 P 性质。</p>
+<ul>
+<li>P 指的是分区容错性，分区现象产生后需要容错，容错是指在 A 与 C 之间选择。如果分布式系统没有分区现象（没有出现不一致不可用情况） 本身就没有分区 ，既然没有分区则就更没有分区容错性 P。</li>
+<li>无论我设计的系统是 AP 还是 CP 系统如果没有出现不一致不可用。 则该系统就处于 CA 状态</li>
+<li>P 的体现前提是得有分区情况存在</li>
+</ul>
+<blockquote>
+<p>文章来源：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/CAP%E5%AE%9A%E7%90%86">维基百科 CAP 定理</a></p>
+</blockquote>
+<h3 id="几个常用的-CAP-框架对比"><a href="#几个常用的-CAP-框架对比" class="headerlink" title="几个常用的 CAP 框架对比"></a>几个常用的 CAP 框架对比</h3><table>
+<thead>
+<tr>
+<th>框架</th>
+<th>所属</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Eureka</td>
+<td>AP</td>
+</tr>
+<tr>
+<td>Zookeeper</td>
+<td>CP</td>
+</tr>
+<tr>
+<td>Consul</td>
+<td>CP</td>
+</tr>
+</tbody></table>
+<h4 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h4><blockquote>
+<p>Eureka 保证了可用性，实现最终一致性。</p>
+</blockquote>
+<p>&emsp;&emsp;Eureka 所有节点都是平等的所有数据都是相同的，且 Eureka 可以相互交叉注册。<br>&emsp;&emsp;Eureka client 使用内置轮询负载均衡器去注册，有一个检测间隔时间，如果在一定时间内没有收到心跳，才会移除该节点注册信息；如果客户端发现当前 Eureka 不可用，会切换到其他的节点，如果所有的 Eureka 都跪了，Eureka client 会使用最后一次数据作为本地缓存；所以以上的每种设计都是他不具备<code>一致性</code>的特性。</p>
+<p>&emsp;&emsp;注意：因为 Eureka AP 的特性和请求间隔同步机制，在服务更新时候一般会手动通过 Eureka 的 api 把当前服务状态设置为<code>offline</code>，并等待 2 个同步间隔后重新启动，这样就能保证服务更新节点对整体系统的影响。</p>
+<h4 id="Zookeeper"><a href="#Zookeeper" class="headerlink" title="Zookeeper"></a>Zookeeper</h4><blockquote>
+<p>强一致性</p>
+</blockquote>
+<p>&emsp;&emsp;Zookeeper 在选举 leader 时会停止服务，只有成功选举 leader 成功后才能提供服务，选举时间较长；内部使用 paxos 选举投票机制，只有获取半数以上的投票才能成为 leader，否则重新投票，所以部署的时候最好集群节点不小于 3 的奇数个（但是谁能保证跪掉后节点也是基数个呢）；Zookeeper 健康检查一般是使用 tcp 长链接，在内部网络抖动时或者对应节点阻塞时候都会变成不可用，这里还是比较危险的。</p>
+<h4 id="Consul"><a href="#Consul" class="headerlink" title="Consul"></a>Consul</h4><p>&emsp;&emsp;和 Zookeeper 一样数据 CP。</p>
+<p>&emsp;&emsp;Consul 注册时候只有过半的节点都写入成功才认为注册成功；leader 挂掉时，重新选举期间整个 Consul 不可用,保证了强一致性但牺牲了可用性。<br>&emsp;&emsp;有很多 blog 说 Consul 属于 ap，官方已经确认他为 CP 机制 原文地址：<a target="_blank" rel="noopener" href="https://www.consul.io/docs/intro/vs/serf%E3%80%82">https://www.consul.io/docs/intro/vs/serf。</a></p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-cap.md">1. distributed-system-cap</a></p>
 
     </div>
 
@@ -243,8 +282,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag"># 分布式</a>
-              <a href="/tags/RPC/" rel="tag"># RPC</a>
-              <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86/" rel="tag"># 系统原理</a>
           </div>
 
         
@@ -253,8 +291,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/" rel="prev" title="分布式系统设计——2. 接口请求顺序性">
-      <i class="fa fa-chevron-left"></i> 分布式系统设计——2. 接口请求顺序性
+    <a href="/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1%20-%20%E5%89%AF%E6%9C%AC/" rel="prev" title="分布式系统设计——3. RPC 框架简单设计">
+      <i class="fa fa-chevron-left"></i> 分布式系统设计——3. RPC 框架简单设计
     </a></div>
       <div class="post-nav-item"></div>
     </div>
@@ -316,7 +354,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F-CAP-%E5%AE%9A%E7%90%86-P-%E4%BB%A3%E8%A1%A8%E4%BB%80%E4%B9%88%E5%90%AB%E4%B9%89"><span class="nav-number">2.</span> <span class="nav-text">分布式系统 CAP 定理 P 代表什么含义</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-CAP-%E5%AE%9A%E7%90%86%EF%BC%88CAP-theorem%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">什么是 CAP 定理（CAP theorem）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E5%8C%BA%E5%AE%B9%E9%94%99%E6%80%A7%EF%BC%88Partition-tolerance%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">分区容错性（Partition tolerance）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%A0%E4%B8%AA%E5%B8%B8%E7%94%A8%E7%9A%84-CAP-%E6%A1%86%E6%9E%B6%E5%AF%B9%E6%AF%94"><span class="nav-number">3.</span> <span class="nav-text">几个常用的 CAP 框架对比</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Eureka"><span class="nav-number">3.1.</span> <span class="nav-text">Eureka</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Zookeeper"><span class="nav-number">3.2.</span> <span class="nav-text">Zookeeper</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Consul"><span class="nav-number">3.3.</span> <span class="nav-text">Consul</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">4.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -330,7 +368,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">19</span>
+          <span class="site-state-item-count">20</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -343,7 +381,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">13</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -466,7 +504,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '12d57861f91e680129f4bfeadc438142',
+      id          : 'ccd27868dc7bdeb69e4647344d9dfcd9',
         language: 'zh-CN',
       distractionFreeMode: true
     });
