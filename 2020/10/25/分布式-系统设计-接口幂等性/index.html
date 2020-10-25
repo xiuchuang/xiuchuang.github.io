@@ -23,24 +23,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 dubbo 工作原理 第一层：service 层，接口层，给服务提供者和消费者来实现的 第二层：config 层，配置层，主要是对 dubbo 进行各种配置的 第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信 第四层：regist">
+  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;一个分布式系统中的某个接口，该如何保证幂等性？这个事儿其实是你做分布式系统的时候必须要考虑的一个生产环境的技术问题。啥意思呢？ &amp;emsp;&amp;emsp;你看，假如你有个服务提供一些接口供外部调用，这个服务部署在了 5 台机器上，接着有个接口就是付款接口。然后人家用户在前端上操作的时候，不知道为">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Dubbo——2. Dubbo工作原理">
-<meta property="og:url" content="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:title" content="分布式系统设计——1. 接口幂等性">
+<meta property="og:url" content="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 dubbo 工作原理 第一层：service 层，接口层，给服务提供者和消费者来实现的 第二层：config 层，配置层，主要是对 dubbo 进行各种配置的 第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信 第四层：regist">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;一个分布式系统中的某个接口，该如何保证幂等性？这个事儿其实是你做分布式系统的时候必须要考虑的一个生产环境的技术问题。啥意思呢？ &amp;emsp;&amp;emsp;你看，假如你有个服务提供一些接口供外部调用，这个服务部署在了 5 台机器上，接着有个接口就是付款接口。然后人家用户在前端上操作的时候，不知道为">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png">
-<meta property="article:published_time" content="2020-10-23T00:58:52.000Z">
-<meta property="article:modified_time" content="2020-10-23T06:17:37.864Z">
+<meta property="article:published_time" content="2020-10-25T02:08:01.000Z">
+<meta property="article:modified_time" content="2020-10-25T02:08:12.857Z">
 <meta property="article:author" content="Peng Chen">
-<meta property="article:tag" content="Dubbo">
 <meta property="article:tag" content="分布式">
 <meta property="article:tag" content="RPC">
+<meta property="article:tag" content="系统设计">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png">
 
-<link rel="canonical" href="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+<link rel="canonical" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/">
 
 
 <script id="page-configurations">
@@ -53,7 +51,7 @@
   };
 </script>
 
-  <title>Dubbo——2. Dubbo工作原理 | Pengchen's Blog</title>
+  <title>分布式系统设计——1. 接口幂等性 | Pengchen's Blog</title>
   
 
 
@@ -169,7 +167,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/23/Dubbo-2-Dubbo%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -182,7 +180,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Dubbo——2. Dubbo工作原理
+          分布式系统设计——1. 接口幂等性
         </h1>
 
         <div class="post-meta">
@@ -193,7 +191,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-10-23 08:58:52 / 修改时间：14:17:37" itemprop="dateCreated datePublished" datetime="2020-10-23T08:58:52+08:00">2020-10-23</time>
+              <time title="创建时间：2020-10-25 10:08:01 / 修改时间：10:08:12" itemprop="dateCreated datePublished" datetime="2020-10-25T10:08:01+08:00">2020-10-25</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -201,7 +199,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Dubbo/" itemprop="url" rel="index"><span itemprop="name">Dubbo</span></a>
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
                 </span>
             </span>
 
@@ -223,28 +221,22 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-operating-principle.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
-<h3 id="dubbo-工作原理"><a href="#dubbo-工作原理" class="headerlink" title="dubbo 工作原理"></a>dubbo 工作原理</h3><ul>
-<li>第一层：service 层，接口层，给服务提供者和消费者来实现的</li>
-<li>第二层：config 层，配置层，主要是对 dubbo 进行各种配置的</li>
-<li>第三层：proxy 层，服务代理层，无论是 consumer 还是 provider，dubbo 都会给你生成代理，代理之间进行网络通信</li>
-<li>第四层：registry 层，服务注册层，负责服务的注册与发现</li>
-<li>第五层：cluster 层，集群层，封装多个服务提供者的路由以及负载均衡，将多个实例组合成一个服务</li>
-<li>第六层：monitor 层，监控层，对 rpc 接口的调用次数和调用时间进行监控</li>
-<li>第七层：protocal 层，远程调用层，封装 rpc 调用</li>
-<li>第八层：exchange 层，信息交换层，封装请求响应模式，同步转异步</li>
-<li>第九层：transport 层，网络传输层，抽象 mina 和 netty 为统一接口</li>
-<li>第十层：serialize 层，数据序列化层</li>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-idempotency.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<p>&emsp;&emsp;一个分布式系统中的某个接口，该如何保证幂等性？这个事儿其实是你做分布式系统的时候必须要考虑的一个生产环境的技术问题。啥意思呢？</p>
+<p>&emsp;&emsp;你看，假如你有个服务提供一些接口供外部调用，这个服务部署在了 5 台机器上，接着有个接口就是<strong>付款接口</strong>。然后人家用户在前端上操作的时候，不知道为啥，总之就是一个订单<strong>不小心发起了两次支付请求</strong>，然后这俩请求分散在了这个服务部署的不同的机器上，好了，结果一个订单扣款扣两次。</p>
+<p>&emsp;&emsp;或者是订单系统调用支付系统进行支付，结果不小心因为<strong>网络超时</strong>了，然后订单系统走了前面我们看到的那个重试机制，咔嚓给你重试了一把，好，支付系统收到一个支付请求两次，而且因为负载均衡算法落在了不同的机器上，尴尬了。。。</p>
+<p>&emsp;&emsp;所以你肯定得知道这事儿，否则你做出来的分布式系统恐怕容易埋坑。</p>
+<p>&emsp;&emsp;这个不是技术问题，这个没有通用的一个方法，这个应该<strong>结合业务</strong>来保证幂等性。</p>
+<p>&emsp;&emsp;所谓<strong>幂等性</strong>，就是说一个接口，多次发起同一个请求，你这个接口得保证结果是准确的，比如不能多扣款、不能多插入一条数据、不能将统计值多加了 1。这就是幂等性。</p>
+<p>&emsp;&emsp;其实保证幂等性主要是三点：</p>
+<ul>
+<li>对于每个请求必须有一个唯一的标识，举个栗子：订单支付请求，肯定得包含订单 id，一个订单 id 最多支付一次，对吧。</li>
+<li>每次处理完请求之后，必须有一个记录标识这个请求处理过了。常见的方案是在 mysql 中记录个状态啥的，比如支付之前记录一条这个订单的支付流水。</li>
+<li>每次接收请求需要进行判断，判断之前是否处理过。比如说，如果有一个订单已经支付了，就已经有了一条支付流水，那么如果重复发送这个请求，则此时先插入支付流水，orderId 已经存在了，唯一键约束生效，报错插入不进去的。然后你就不用再扣款了。</li>
 </ul>
-<h3 id="工作流程"><a href="#工作流程" class="headerlink" title="工作流程"></a>工作流程</h3><ul>
-<li>第一步：provider 向注册中心去注册</li>
-<li>第二步：consumer 从注册中心订阅服务，注册中心会通知 consumer 注册好的服务</li>
-<li>第三步：consumer 调用 provider</li>
-<li>第四步：consumer 和 provider 都异步通知监控中心</li>
-</ul>
-<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/dubbo-operating-principle.png" alt="dubbo-operating-principle"></a></p>
-<h3 id="注册中心挂了可以继续通信吗？"><a href="#注册中心挂了可以继续通信吗？" class="headerlink" title="注册中心挂了可以继续通信吗？"></a>注册中心挂了可以继续通信吗？</h3><p>&emsp;&emsp;可以，因为刚开始初始化的时候，消费者会将提供者的地址等信息<strong>拉取到本地缓存</strong>，所以注册中心挂了可以继续通信。</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-operating-principle.md">1. dubbo-operating-principle</a></p>
+<p>&emsp;&emsp;实际运作过程中，你要结合自己的业务来，比如说利用 Redis，用 orderId 作为唯一键。只有成功插入这个支付流水，才可以执行实际的支付扣款。</p>
+<p>&emsp;&emsp;要求是支付一个订单，必须插入一条支付流水，order_id 建一个唯一键 <code>unique key</code> 。你在支付一个订单之前，先插入一条支付流水，order_id 就已经进去了。你就可以写一个标识到 Redis 里面去， <code>set order_id payed</code> ，下一次重复请求过来了，先查 Redis 的 order_id 对应的 value，如果是 <code>payed</code> 就说明已经支付过了，你就别重复支付了。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-idempotency.md">1. distributed-system-idempotenc</a></p>
 
     </div>
 
@@ -254,9 +246,9 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Dubbo/" rel="tag"># Dubbo</a>
               <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag"># 分布式</a>
               <a href="/tags/RPC/" rel="tag"># RPC</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
           </div>
 
         
@@ -265,13 +257,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2020/10/23/Dubbo-1-%E5%BC%95%E5%85%A5Dubbo/" rel="prev" title="Dubbo——1. 引入Dubbo">
-      <i class="fa fa-chevron-left"></i> Dubbo——1. 引入Dubbo
+    <a href="/2020/10/25/Dubbo-6-Dubbo%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86/" rel="prev" title="Dubbo——6. Dubbo服务治理">
+      <i class="fa fa-chevron-left"></i> Dubbo——6. Dubbo服务治理
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2020/10/23/Dubbo-3-Dubbo%E5%BA%8F%E5%88%97%E5%8C%96%E5%8D%8F%E8%AE%AE/" rel="next" title="Dubbo——3. Dubbo序列化协议">
-      Dubbo——3. Dubbo序列化协议 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -331,7 +320,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dubbo-%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">dubbo 工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E6%8C%82%E4%BA%86%E5%8F%AF%E4%BB%A5%E7%BB%A7%E7%BB%AD%E9%80%9A%E4%BF%A1%E5%90%97%EF%BC%9F"><span class="nav-number">4.</span> <span class="nav-text">注册中心挂了可以继续通信吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">5.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -481,7 +470,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '4ca3314ca4a3d23723657a6c6d4573aa',
+      id          : '4205c953320c1e0c05d5a66e61fc697b',
         language: 'zh-CN',
       distractionFreeMode: true
     });
