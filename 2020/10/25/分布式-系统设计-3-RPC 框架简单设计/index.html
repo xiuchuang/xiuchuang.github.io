@@ -23,21 +23,22 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="局域网互访虚机 宿主机配置 虚机配置 kvm配置  宿主机配置找到&#x2F;etc&#x2F;network&#x2F;interfaces，在后面添加 auto br0     &#x2F;&#x2F;添加的桥接网卡，新的名字 iface br0 inet static address 10.0.1.60    &#x2F;&#x2F;宿主机IP netmask 255.255.254.0 broadcast 10.0.1.255 gateway 10.0.0.">
+  <meta name="description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;举个栗子，说个最简单的回答思路：  上来你的服务就得去注册中心注册吧，你是不是得有个注册中心，保留各个服务的信息，可以用 zookeeper 来做，对吧。 然后你的消费者需要去注册中心拿对应的服务信息吧，对吧，而且每个服务可能会存在于多台机器上。 接着你就该发起一次请求了，咋发起？当然是基于动">
 <meta property="og:type" content="article">
-<meta property="og:title" content="局域网互访虚机">
-<meta property="og:url" content="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/index.html">
+<meta property="og:title" content="分布式系统设计——3. RPC 框架简单设计">
+<meta property="og:url" content="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="局域网互访虚机 宿主机配置 虚机配置 kvm配置  宿主机配置找到&#x2F;etc&#x2F;network&#x2F;interfaces，在后面添加 auto br0     &#x2F;&#x2F;添加的桥接网卡，新的名字 iface br0 inet static address 10.0.1.60    &#x2F;&#x2F;宿主机IP netmask 255.255.254.0 broadcast 10.0.1.255 gateway 10.0.0.">
+<meta property="og:description" content="前言&amp;emsp;&amp;emsp;这篇文章取自这篇博客，作为整理和收录，方便后续查阅。 &amp;emsp;&amp;emsp;举个栗子，说个最简单的回答思路：  上来你的服务就得去注册中心注册吧，你是不是得有个注册中心，保留各个服务的信息，可以用 zookeeper 来做，对吧。 然后你的消费者需要去注册中心拿对应的服务信息吧，对吧，而且每个服务可能会存在于多台机器上。 接着你就该发起一次请求了，咋发起？当然是基于动">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-10-19T07:10:27.326Z">
-<meta property="article:modified_time" content="2020-10-22T08:58:05.453Z">
+<meta property="article:published_time" content="2020-10-25T02:32:18.000Z">
+<meta property="article:modified_time" content="2020-10-25T02:34:56.792Z">
 <meta property="article:author" content="Peng Chen">
-<meta property="article:tag" content="虚拟机">
-<meta property="article:tag" content="局域网">
+<meta property="article:tag" content="分布式">
+<meta property="article:tag" content="RPC">
+<meta property="article:tag" content="系统设计">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
+<link rel="canonical" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1/">
 
 
 <script id="page-configurations">
@@ -50,7 +51,7 @@
   };
 </script>
 
-  <title>局域网互访虚机 | Pengchen's Blog</title>
+  <title>分布式系统设计——3. RPC 框架简单设计 | Pengchen's Blog</title>
   
 
 
@@ -166,7 +167,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-3-RPC%20%E6%A1%86%E6%9E%B6%E7%AE%80%E5%8D%95%E8%AE%BE%E8%AE%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -179,7 +180,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          局域网互访虚机
+          分布式系统设计——3. RPC 框架简单设计
         </h1>
 
         <div class="post-meta">
@@ -188,23 +189,17 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2020-10-19 15:10:27" itemprop="dateCreated datePublished" datetime="2020-10-19T15:10:27+08:00">2020-10-19</time>
+              <time title="创建时间：2020-10-25 10:32:18 / 修改时间：10:34:56" itemprop="dateCreated datePublished" datetime="2020-10-25T10:32:18+08:00">2020-10-25</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2020-10-22 16:58:05" itemprop="dateModified" datetime="2020-10-22T16:58:05+08:00">2020-10-22</time>
-              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
                 </span>
             </span>
 
@@ -226,58 +221,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="局域网互访虚机"><a href="#局域网互访虚机" class="headerlink" title="局域网互访虚机"></a>局域网互访虚机</h1><ul>
-<li><a href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE">宿主机配置</a></li>
-<li><a href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE">虚机配置</a></li>
-<li><a href="#kvm%E9%85%8D%E7%BD%AE">kvm配置</a></li>
-</ul>
-<h2 id="宿主机配置"><a href="#宿主机配置" class="headerlink" title="宿主机配置"></a><span id="宿主机配置">宿主机配置</span></h2><p>找到/etc/network/interfaces，在后面添加</p>
-<pre><code>auto br0     //添加的桥接网卡，新的名字
-iface br0 inet static
-address 10.0.1.60    //宿主机IP
-netmask 255.255.254.0
-broadcast 10.0.1.255
-gateway 10.0.0.1
-dns-nameservers 114.114.114.114  
-bridge_ports enp0s31f6   //宿主机网卡名
-bridge_fd 9</code></pre>
-<p>然后在宿主机</p>
-<pre><code>sudo ifup br0</code></pre>
-<h2 id="虚机配置"><a href="#虚机配置" class="headerlink" title="虚机配置"></a><span id="虚机配置">虚机配置</span></h2><p>在 <strong>每台</strong> 虚机下配置</p>
-<p>/etc/hostname<br>sysctl kernel.hostname=yourhostname</p>
-<p>打开/etc/sysconfig/network-scripts/ifcfg-eth0，依照以下修改，注意：ONBOOT=yes和static。</p>
-<pre><code>HWADDR=52:54:00:2a:b9:f3
-TYPE=Ethernet  
-DEFROUTE=yes
-IPV4_FAILURE_FATAL=no
-IPV6INIT=yes
-IPV6_AUTOCONF=yes
-IPV6_DEFROUTE=yes
-IPV6_FAILURE_FATAL=no
-NAME=ens3   //虚机网卡名字
-UUID=f9c0608a-3290-4a44-b209-7c25aaa7fec8
-DEVICE=ens3  //虚机网卡名字
-ONBOOT=yes  //一定yes
-DNS1=114.114.114.114  //连外网必备
-IPADDR=10.0.0.152   //你要配的虚机网卡IP，0网段
-PREFIX=23  //。。
-GATEWAY=10.0.0.1  //。。
-IPV6_PEERDNS=yes
-IPV6_PEERROUTES=yes</code></pre>
-<h2 id="kvm配置"><a href="#kvm配置" class="headerlink" title="kvm配置"></a><span id="kvm配置">kvm配置</span></h2><p>打开每台虚机的kvm设置，点击感叹号，点击NIC，找到网络源，选择桥接br0，点击应用确定。然后强制关机再开机（你也可以等待重启）。然后就可以在局域网访问你的虚机了。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-
-<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a><span id="其他问题">其他问题</span></h2><h3 id="ubuntu环境设置DNS"><a href="#ubuntu环境设置DNS" class="headerlink" title="ubuntu环境设置DNS"></a>ubuntu环境设置DNS</h3><p>在Ubuntu环境下，打开网页非常缓慢，很可能是DNS设置异常的问题。</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-rpc-design.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
+<p>&emsp;&emsp;举个栗子，说个最简单的回答思路：</p>
 <ul>
-<li><p>方法1：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;network&#x2F;interfaces</span><br><span class="line">dns-nameservers 114.114.114.114</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>方法2：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf&#x2F;base  </span><br><span class="line">或者&#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf.d&#x2F;base</span><br><span class="line">修改为：</span><br><span class="line">nameserver 8.8.8.8</span><br><span class="line">nameserver 8.8.4.4</span><br><span class="line">然后执行resolvconf -u  </span><br></pre></td></tr></table></figure>
-
-<p>就能在/etc/resolv.conf文件中多出2行。<br>还有一种方式是修改/etc/resolvconf/resolv.conf/head，不过这个文件系统不建议修改。</p>
-</li>
+<li>上来你的服务就得去注册中心注册吧，你是不是得有个注册中心，保留各个服务的信息，可以用 zookeeper 来做，对吧。</li>
+<li>然后你的消费者需要去注册中心拿对应的服务信息吧，对吧，而且每个服务可能会存在于多台机器上。</li>
+<li>接着你就该发起一次请求了，咋发起？当然是基于动态代理了，你面向接口获取到一个动态代理，这个动态代理就是接口在本地的一个代理，然后这个代理会找到服务对应的机器地址。</li>
+<li>然后找哪个机器发送请求？那肯定得有个负载均衡算法了，比如最简单的可以随机轮询是不是。</li>
+<li>接着找到一台机器，就可以跟它发送请求了，第一个问题咋发送？你可以说用 netty 了，nio 方式；第二个问题发送啥格式数据？你可以说用 hessian 序列化协议了，或者是别的，对吧。然后请求过去了。</li>
+<li>服务器那边一样的，需要针对你自己的服务生成一个动态代理，监听某个网络端口了，然后代理你本地的服务代码。接收到请求的时候，就调用对应的服务代码，对吧。</li>
 </ul>
+<p>&emsp;&emsp;这就是一个最最基本的 rpc 框架的思路。</p>
+<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/dubbo-rpc-design.md">1. dubbo-rpc-design</a></p>
 
     </div>
 
@@ -287,8 +242,9 @@ IPV6_PEERROUTES=yes</code></pre>
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/" rel="tag"># 虚拟机</a>
-              <a href="/tags/%E5%B1%80%E5%9F%9F%E7%BD%91/" rel="tag"># 局域网</a>
+              <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F/" rel="tag"># 分布式</a>
+              <a href="/tags/RPC/" rel="tag"># RPC</a>
+              <a href="/tags/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/" rel="tag"># 系统设计</a>
           </div>
 
         
@@ -296,11 +252,11 @@ IPV6_PEERROUTES=yes</code></pre>
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2020/10/19/TwoSum/" rel="next" title="TwoSum">
-      TwoSum <i class="fa fa-chevron-right"></i>
+    <a href="/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/" rel="prev" title="分布式系统设计——2. 接口请求顺序性">
+      <i class="fa fa-chevron-left"></i> 分布式系统设计——2. 接口请求顺序性
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -360,7 +316,7 @@ IPV6_PEERROUTES=yes</code></pre>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA"><span class="nav-number">1.</span> <span class="nav-text">局域网互访虚机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">1.1.</span> <span class="nav-text">宿主机配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE"><span class="nav-number">1.2.</span> <span class="nav-text">虚机配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kvm%E9%85%8D%E7%BD%AE"><span class="nav-number">1.3.</span> <span class="nav-text">kvm配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E9%97%AE%E9%A2%98"><span class="nav-number">1.4.</span> <span class="nav-text">其他问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ubuntu%E7%8E%AF%E5%A2%83%E8%AE%BE%E7%BD%AEDNS"><span class="nav-number">1.4.1.</span> <span class="nav-text">ubuntu环境设置DNS</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-number">2.</span> <span class="nav-text">参考文章</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -510,7 +466,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '439f17dc4ab013bc1f54ec2784634bc3',
+      id          : '12d57861f91e680129f4bfeadc438142',
         language: 'zh-CN',
       distractionFreeMode: true
     });
