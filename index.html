@@ -774,159 +774,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Peng Chen">
-      <meta itemprop="description" content="彭晨的简单记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pengchen's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/" class="post-title-link" itemprop="url">分布式系统原理——100. 条分缕析分布式：到底什么是一致性？</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2021-01-02 17:38:21 / 修改时间：17:44:38" itemprop="dateCreated datePublished" datetime="2021-01-02T17:38:21+08:00">2021-01-02</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261779&idx=1&sn=9fb74c24f8863837d584a96536ba8189&scene=21#wechat_redirect">这篇博客</a>，作为整理和收录，方便后续查阅。本篇文章非常推荐，与作者接下来的几篇文章都很不错，对于网上的分布式理论见解很深，且引的参考文章都很不错，可以参考看看，提升分布式系统理解很有帮助。</p>
-<p>&emsp;&emsp;凡是做服务器开发的技术同学，估计都对分布式系统以及相关的理论感兴趣。而对于分布式理论，大家讨论的最多的恐怕就是「分布式一致性」问题了。然而，不管是学术界还是业界的发展历史上，对于「一致性」这个概念的理解，始终充满了混乱。</p>
-<p>&emsp;&emsp;如果你问一个技术同学，到底什么是分布式一致性，估计会得到五花八门的答案。这其中比较常见的说法可能是这样的：一致性就是多个服务器节点中的数据保持一致（至少百度百科上差不多就是这么说的）。而如果再讨论得深入一点，可能就会谈到所谓的分布式一致性协议，比如Paxos之类的；还有CAP定理，也跟「一致性」有关。</p>
-<p>&emsp;&emsp;但是，「一致性」这个词是非常有迷惑性的。如果用英文来表达的话，跟「一致性」有关的至少有两个词：<em>consistency</em>和<em>consensus</em>。它们经常都被翻译成「一致性」，这进一步加剧了这个概念被滥用的程度。为了接下来讨论方便，我们先简单地澄清一下：</p>
-<ul>
-<li>网上通常提到的诸如Paxos之类的分布式一致性协议，其实是<em>consensus</em>这个词。它如果被翻译成「共识」，可能会更好一些。为了表达清晰，本文后面在讨论<em>consensus</em>问题的时候，尽量使用「共识」这个词。</li>
-<li>ACID或CAP里C，用的都是<em>consistency</em>这个词，但真实含义迥然不同。</li>
-<li>此外，还经常会听到人们关于「强一致性」的说法，而且这种说法通常都会牵涉到CAP定理或者「分布式事务」的概念。「强一致性」与CAP定理确实关系密切，但与「分布式事务」的关系却不知从何而来。</li>
-</ul>
-<p>&emsp;&emsp;下面，我们就对这些概念进行详细的解析。</p>
-<h3 id="ACID中的一致性"><a href="#ACID中的一致性" class="headerlink" title="ACID中的一致性"></a>ACID中的一致性</h3><p>&emsp;&emsp;ACID是数据库事务的四个特性，分别是原子性 (Atomicity)、一致性 (Consistency)、隔离性 (Isolation)和持久性 (Durability)。</p>
-<p>&emsp;&emsp;我们现在关注的是其中的C，即一致性<em>Consistency</em>。它是什么意思呢？通俗地说，它指的是任何一个数据库事务的执行，都应该让整个数据库保持在「一致」的状态。那怎样的状态才算「一致」呢？举个例子，假设在银行账户之间进行转账。显然，「转账」这个操作应该确保在转账前后账户总额保持不变，这是任何一个转账操作必须要遵守的规定。现在假设要从账户A向账户B转账100元，于是我们启动了一个数据库事务。在这个事务中，可以先从账号A中减去100元，再往账户B中增加100元。这样的一个事务操作，满足了“转账前后账户总额保持不变”的规定，因此我们说：这个事务操作保持了数据库的「一致性」；同时，在这个事务执行前后，数据库都处于一种「一致」的状态。</p>
-<p>&emsp;&emsp;从上一段的描述中，我们容易看出：</p>
-<ul>
-<li>ACID中的「一致性」，是对于整个数据库的「一致」状态的维持。抽象来看，对数据库每进行一次事务操作，它的状态就发生一次变化。这相当于把数据库看成了状态机，只要数据库的起始状态是「一致」的，并且每次事务操作都能保持「一致性」，那么数据库就能始终保持在「一致」的状态上 (Consistency Preservation)。</li>
-<li>所谓状态是不是「一致」，其实是由业务层规定的。比如前面这个转账的例子，“转账前后账户总额保持不变”，这个规定只对于「转账」这个特定的业务场景有效。如果换一个业务场景，「一致」的概念就不是这样规定了。所以说，ACID中的「一致性」，其实是体现了业务逻辑上的合理性，并不是由数据库本身的技术特性所决定的。</li>
-</ul>
-<p>&emsp;&emsp;我们再来看一下，为了让事务总是能保持ACID的一致性，我们需要在实现上考虑哪些因素呢？</p>
-<p>&emsp;&emsp;至少两个方面需要考虑：一个是出错情况 (failure/error)；一个是并发 (concurrency) 行为。</p>
-<p>&emsp;&emsp;首先，对于任何系统来说，错误都是在所难免的。而错误又可以细分为两类。</p>
-<p>&emsp;&emsp;第一类，事务本身的实现逻辑可能存在错误。比如，从账户A向账户B转账100元，在这个事务中，如果我们只从账号A中减去了100元，但忘记了往账户B中增加100元，那么这个事务就是错误的。显然，避免第一类错误，是保持一致性的前提，这需要应用层进行恰当的编码来保证。</p>
-<p>&emsp;&emsp;第二类，则是意想不到的各种软硬件错误。比如，还是从账户A向账户B转账100元，事务本身的实现逻辑没有问题，它先执行了从账号A中减去了100元，但在执行往账户B中增加100元之前，却发生了意想不到的错误，比如进程突然crash了，或是磁盘满了，或是网络突然不通了，或是其它任何可能的硬件错误。这时候，事务只执行了前一半，势必会破坏数据库整体状态的一致性。那怎么办呢？这其实就需要ACID中的A（原子性）来保障了。简言之，原子性保障了事务的执行要么全部成功，要么全部失败，而不允许出现“只执行了一半”这种“部分成功”的情况。</p>
-<p>&emsp;&emsp;其次，并发行为也可能会影响事务的一致性。在数据库系统中，并发行为体现在可能存在多个事务同时操作同一份数据的情况。还是拿前面转账的例子来说，假设有两个事务：事务1从账户A向账户B转账100元，事务2从账户A向账户C转账50元。如果两个事务先后顺序执行，自然没有问题。但如果两个事务同时执行了，那么可能会出现下面的执行序列（假设账号A的初始余额为x元）：</p>
-<ol>
-<li>&lt;事务1&gt;：读取账户A的余额，读到了x元；</li>
-<li>&lt;事务2&gt;：读取账户A的余额，也读到了x元；</li>
-<li>&lt;事务1&gt;：向账户A中写入(x-100)元；</li>
-<li>&lt;事务2&gt;：向账户A中写入(x-50)元；</li>
-<li>……</li>
-</ol>
-<p>&emsp;&emsp;上面的执行过程，账户A中最后被写入的值是(x-50)元，显然是不对的（事务的一致性会被破坏）。如果两个转账的事务能正确执行完，那么账户A的余额应该是(x-150)元才对。</p>
-<p>&emsp;&emsp;这个并发的问题怎么处理呢？这就需要ACID中的I（隔离性）来保障了。什么是隔离性呢？它对于并发执行的多个事务进行合理的排序，保障了不同事务的执行互不干扰。换言之，隔离性这种特性，能够让并发执行的多个事务就好像是按照「先后顺序」执行的一样。</p>
-<p>&emsp;&emsp;经过上面的分析，现在关于ACID中的一致性，我们可以得到一些结论了：</p>
-<ul>
-<li>ACID中的一致性，是个很偏应用层的概念。这跟ACID中的原子性、隔离性和持久性有很大的不同。原子性、隔离性和持久性，都是数据库本身所提供的技术特性；而一致性，则是由特定的业务场景规定的。怪不得《Designing Data-Intensive Applications》[1]一书的作者在书中写道：”<em>The letter C doesn’t really belong in ACID</em>“。</li>
-<li>要真正做到ACID中的一致性，它是要依赖数据库的原子性和隔离性的（应对错误和并发）。但是，就算数据库提供了所有你所需要的技术特性，也不一定能保证ACID的一致性。这还取决于你在应用层对于事务本身的实现逻辑是否正确无误。</li>
-<li>最后，ACID中的一致性，甚至跟分布式都没什么直接关系。它跟分布式的唯一关联在于，在分布式环境下，它所依赖的数据库原子性和隔离性更难实现。</li>
-</ul>
-<p>&emsp;&emsp;总之，ACID中的一致性，是一个非常特殊的概念。除了数据库事务处理，它很难扩展到其它场景，也跟分布式理论中的其它「一致性」概念没有什么关系。</p>
-<h3 id="分布式事务与共识算法的关系"><a href="#分布式事务与共识算法的关系" class="headerlink" title="分布式事务与共识算法的关系"></a>分布式事务与共识算法的关系</h3><p>&emsp;&emsp;先说共识问题 (consensus problem)。这是分布式系统中的一个十分基础而核心的问题，它表示如何在分布式系统中的多个节点之间就某事达成共识。</p>
-<p>&emsp;&emsp;网上通常提到的「分布式一致性协议」，或者「分布式一致性算法」，一般来说就是解决这里的共识问题的算法。用词的不同，是由于中英文翻译造成的。这些算法或协议，经常包含Paxos之类，但也可能包括两阶段提交协议(2PC)或三阶段提交协议(3PC)。</p>
-<p>&emsp;&emsp;人们既然经常将Paxos、2PC、3PC这些算法放在一起讨论，那么它们之间势必存在着某种相似性的。但这种相似性是怎么来的呢？我们仔细分析一下。Paxos，是解决共识问题的通用算法。它允许每个节点提出自己的提议(称为proposal），而Paxos算法能够不借助于任何中心化节点，保证各个节点之间对于提议最终达成一致。这里的proposal，是一个抽象的概念，它可以包含任何你想达成共识的数值。2PC和3PC，则是为了解决分布式事务提交问题的。</p>
-<p>&emsp;&emsp;这样从表面看起来，Paxos和2PC、3PC，这两类算法似乎没有多少相似性。2PC和3PC是跟分布式事务强相关的，而Paxos跟分布式事务没有什么特别的关系。为了分析更深层次的本质，我们探究一下2PC和3PC产生的背景。</p>
-<p>&emsp;&emsp;回到事务的概念。事务本来和分布式没什么直接关系的，就算在一个单节点的数据库上，要实现出事务的ACID特性，也不是那么容易的。只是，如同在前一章节的结尾我们提到的，在分布式环境下，事务的ACID特性更难实现。在前一章中我们主要关注ACID中的一致性，现在我们关注一下ACID中的原子性 (Atomicity)。</p>
-<p>&emsp;&emsp;ACID中的原子性，要求事务的执行要么全部成功，要么全部失败，而不允许出现“部分成功”的情况。在分布式事务中，这要求参与事务的所有节点，要么全部执行Commit操作，要么全部执行Abort操作。换句话说，参与事务的所有节点，需要在“执行Commit还是Abort”这一点上达成一致（其实就是共识）。这个问题在学术界被称为<strong>原子提交问题</strong>（Atomic Commitment Problem）[2]，而能够解决原子提交问题的算法，则被称为<strong>原子提交协议</strong>（Atomic Commitment Protocal，简称**<em>ACP**</em>）[3]。2PC和3PC，属于原子提交协议两种不同的具体实现。</p>
-<p>&emsp;&emsp;分析到这里，我们似乎发现了<strong>原子提交问题</strong>与<strong>共识问题</strong>的关联性：</p>
-<ul>
-<li>共识问题，解决的是如何在分布式系统中的多个节点之间就某个提议达成共识。</li>
-<li>原子提交问题，解决的是参与分布式事务的所有节点在“执行Commit还是Abort”这一点上达成共识。</li>
-<li>所以，原子提交问题是共识问题的一个特例。</li>
-</ul>
-<p>&emsp;&emsp;这个酷似「三段论」式的论述，看起来“合情合理”。实际上，学术界在很长一段时间内都认为，分布式事务的原子提交问题是拜占庭将军问题（Byzantine Generals Problem）的一个退化形式[4]。什么是拜占庭将军问题呢？简单来说，它也是分布式系统的一种<strong>共识问题</strong>，而且是容错性要求最高的一种共识问题。我们在这里不展开讨论拜占庭将军问题了，如果你对细节感兴趣，欢迎阅读我之前的另一篇文章“<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261626&idx=1&sn=6b32cc7a7a62bee303a8d1c4952d9031&scene=21#wechat_redirect">漫谈分布式系统、拜占庭将军问题与区块链</a>”。总之，学术界以前的这种观点，跟我们刚刚分析得到的结论（原子提交问题是共识问题的一个特例）差不多。</p>
-<p>&emsp;&emsp;但是，分布式系统的诡异之处就要体现在这里，一些细节的不同，可能导致非常大的差异。如果你仔细看前文的描述，会发现这样一个细节：当我们描述共识问题的时候，我们说的是在<strong>多个节点</strong>之间达成共识；而当我们描述原子提交问题的时候，我们说的是在<strong>所有节点</strong>之间达成共识。这个细微的差别，让这两类问题，几乎变成了完全不同的问题（谁也替代不了谁）。</p>
-<p>&emsp;&emsp;从两类问题各自的应用场景来看，这个差异是合理的，也是容易理解的。以解决共识问题的Paxos协议为例，它只要求网络中的大部分节点达成共识就可以了，这样Paxos才能提供一定的容错性，只要网络中发生故障的节点不超过一半仍然能够正常工作（不会被阻塞）。然而，解决原子提交问题的2PC或3PC则不同。即使只有一个节点发生故障了，其它节点也不能擅自决策进行Commit操作。因为这样的话，这个事务就只是「部分地执行成功了」，违反了ACID原子性的要求。所以，原子提交协议必须保证在参与分布式事务的<strong>所有节点</strong>（包括故障的节点）上对于“执行Commit还是Abort”达成共识。</p>
-<p>&emsp;&emsp;故障的节点可能什么都做不了，如何参与达成共识呢？这里的意思是，等故障节点恢复之后，它的决策（Commit或是Abort）必须与其它所有节点保持一致。那么，这是不是意味着，只要有节点发生故障，原子提交协议就一定会阻塞呢？这里有点让人奇怪，答案是「不一定」。根源就在于Abort和Commit并不是对等的决策。假设有一个节点宕机了，其它节点大可以选择Abort决策（注意不能选择Commit），从而让整个事务Abort掉（没有被阻塞住，等待宕机的节点恢复）。等宕机的那个节点恢复了，它会发现相应的事务已经执行Abort了，那么它也按照Abort处理就好了。在这个过程中，参与分布式事务的<strong>所有节点</strong>（包括宕机的这个节点）对于“执行Commit还是Abort”也是达成了共识的（这个共识是Abort）。正是这些细微却至关重要的细节，让2PC和3PC这种看似简单的协议实现起来没有那么容易。</p>
-<p>&emsp;&emsp;论文[5]进一步澄清了这一问题，原子提交问题被抽象成一个新的一致性问题，称为uniform consensus问题，它是与通常的共识问题（consensus problem）不同的问题，而且是更难的问题。uniform consensus，要求所有节点（包括故障节点）都要达成共识；而consensus问题只关注没有发生故障的节点达成共识。</p>
-<p>&emsp;&emsp;至此，我们总结一下本章节的结论：</p>
-<ul>
-<li>共识问题（consensus problem），解决的是如何在分布式系统中的多个节点之间就某个提议达成共识。它只关注没有发生故障的节点达成共识就可以了。</li>
-<li>在分布式事务中，ACID中的原子性，引出了原子提交问题，它解决的是参与分布式事务的所有节点在“执行Commit还是Abort”这一点上达成共识。原子提交问题属于uniform consensus问题，要求所有节点（包括故障节点）都要达成共识，是比consensus问题更难的一类问题。</li>
-<li>Paxos和解决拜占庭将军问题的算法，解决的是consensus问题；2PC/3PC，解决的是一个特定的uniform consensus问题。</li>
-</ul>
-<h3 id="CAP与线性一致性"><a href="#CAP与线性一致性" class="headerlink" title="CAP与线性一致性"></a>CAP与线性一致性</h3><p>&emsp;&emsp;CAP的三个字母分别代表了分布式系统的三个特性：一致性（Consistency）、可用性（Availability）和分区容错性（Partition-tolerance）。而CAP定理指出：任何一个分布式系统只能同时满足三个特性中的两个。但是，这一描述曾经引发了非常多的误解。</p>
-<p>&emsp;&emsp;为了进一步展开讨论，我们先关注CAP中的C，也就是一致性。它是什么意思呢？在证明CAP定理的原始论文中[6]，C指的是<em>linearizable consistency</em>，也就是「线性一致性」。更精简的英文表达则是<em>linearizability</em>。</p>
-<p>&emsp;&emsp;这听起来可能稍微有点奇怪，但事实就是这样。<strong>线性一致性</strong>（<em>linearizability</em>）是CAP中的C的原始定义。而很多人在谈到CAP时，则会把这个C看成是<strong>强一致性</strong>（<em>strong consistency</em>）。这其实也没错，因为线性一致性的另一个名字，就是强一致性[1]。只不过，相比「线性一致性」来说，「强一致性」并不是一个好名字。因为，从这个名字你看不出来它真实的含义（到底「强」在哪？）。在下面的讨论中，我们统一使用线性一致性(<em>linearizability</em>)这个词汇。</p>
-<p>&emsp;&emsp;那线性一致性是什么意思呢？它精确的形式化定义[7]非常抽象，且难以理解。大体上是说，在一个并发执行的环境中，不同的操作之间可能是有严格的先后关系的（一个操作执行结束之后另一个操作才开始执行），也可能是并发执行的（一个操作还没执行结束，另一个操作就开始执行了）；如果能够把所有操作排列成一个「合法」的全局线性顺序，那么这些操作就是满足线性一致性的。当然，在这个重新排列的过程中，原来就存在的严格的先后关系，必须得以保持。</p>
-<p>&emsp;&emsp;但是，怎么才算合法呢？我们具体到一个存储系统中通过例子来说明。假如我们先往某个数据对象中写入了一个值（假设是1），然后在写入操作结束之后，我们再把这个数据对象读出来（在写入和读取操作之间没有其它的写入操作了）。如果我们发现读取到的值是1，那么就是合法的；而如果读出来的值不是1，那么就是非法的。再假设，我们又执行了一次读取操作，发现读出来的值仍然是1，那么就是合法的；否则就是非法的。也就是说，如果一个读操作已经读到了某个值，那么下一个对于同一个数据对象的读操作就必须读取到同样的值（除非在两次读操作之间还存在别的写入操作）。</p>
-<p>&emsp;&emsp;这些例子都比较容易理解，因为站在观察者的角度它们是符合逻辑的。因此，对于一个分布式存储系统来说，线性一致性的含义可以用一个具体的描述来取代：对于任何一个数据对象来说，<strong>系统表现得就像它只有一个副本一样</strong>[1]。“表现得像只有一个副本”，也就相当于满足了前面的「合法」条件。显然，如果系统对于每个数据对象真的只存一个副本，那么肯定是满足线性一致性的。但是单一副本不具有容错性，所以分布式存储系统一般都会对数据进行复制（replication），也就是保存多个副本。这时，在一个分布式多副本的存储系统中，要提供线性一致性的保证，就需要付出额外的成本了。</p>
-<p>&emsp;&emsp;网上对于CAP的一致性的通俗解释，通常有两种：</p>
-<ol>
-<li>一致性是指：在分布式系统完成某写操作后的任何读操作，都应该获取到该写操作写入的那个最新的值。显然，如果系统“表现得像只有一个副本”一样，这个描述是成立的。不过这只是描述了线性一致性的一个特例而已，有以偏概全的嫌疑。</li>
-<li>一致性是指：保持所有节点在同一个时刻具有相同的、逻辑一致的数据。显然这种解释并不是从观察者的角度来描述的，而是试图从系统内部的行为（内部实现）来描述的。「所有节点」，可能指的是「所有副本」；至于“在同一个时刻具有相同的、逻辑一致的数据”这个说法，则似乎离线性一致性的本来含义偏离太远了。从逻辑上说，“表现得像只有一个副本”，并不一定需要系统“在同一个时刻具有相同的、逻辑一致的数据”。线性一致性可能有很多种实现方式，而这种解释规定了一种具体的系统实现，同样有以偏概全的嫌疑。</li>
-</ol>
-<p>&emsp;&emsp;我们前面提到，线性一致性，也被称为强一致性。之所以这么说，大概是因为线性一致性要求多个副本上的数据必须保持如此之「强」的一致性，以至于“让系统表现得就像只有一个副本”。</p>
-<p>&emsp;&emsp;另外，网上的资料提到强一致性的时候，还有可能会关联到分布式事务上面，比如2PC/3PC这些原子提交协议。但把它们关联到一起的说法，其深层次含义到底是什么，只能靠猜测。分布式事务处理的并不是同一个数据对象的多个副本的问题，而指的是将针对多个数据对象的各种操作组合起来，提供ACID的特性。将分布式事务看成是强一致性的保证，猜测可能实际上指的就是ACID的原子性。总之，「强一致性」这个词很容易产生误解，所以建议谨慎使用。</p>
-<p>&emsp;&emsp;在历史上，CAP定理具有巨大的知名度，但它实际的影响力却没有想象的那么大。随着分布式理论的发展，我们逐渐认识到，CAP并不是一个「大一统」的理论，远不能涵盖分布式系统设计中方方面面的问题。相反，CAP引发了很多误解和理解上的混乱（细节不讨论了）。因此，可以预见到，未来CAP定理的影响将会进一步被削弱。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>&emsp;&emsp;本文我们辨析了分布式系统中的诸多被称为「一致性」的概念。但这个话题还没有完，我将在下一篇文章中跟大家继续讨论顺序一致性、线性一致性、最终一致性等概念。</p>
-<h5 id="参考文献："><a href="#参考文献：" class="headerlink" title="参考文献："></a>参考文献：</h5><ul>
-<li>[1] Martin Kleppmann,《Designing Data-Intensive Applications》, 2017.</li>
-<li>[2] Vassos Hadzilacos, “On The Relationship Between The Atomic Commitment And Consensus Problems”, 1990.</li>
-<li>[3] Philip A. Bernstein, Vassos Hadzilacos, Nathan Goodman, 《Concurrency Control And Recovery in Database Systems》, 1987.</li>
-<li>[4] Jim Gray, “A Comparison Of The Byzantine Agreement Problem And The Transaction Commit Problem”, 1988.</li>
-<li>[5] Bernadette Charron-Bost, André Schiper, “Uniform Consensus Is Harder Than Consensus”, 2001.</li>
-<li>[6] Seth Gilbert, Nancy Lynch, “Brewer’s Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web”, 2002.</li>
-<li>[7] MAURICE P. HERLIHY, JEANNETTE M. WING, “Linearizability: A Correctness Condition for Concurrent Objects”, 1990.</li>
-</ul>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-1-CAP%E5%AE%9A%E7%90%86/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1046,6 +893,414 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Peng Chen">
+      <meta itemprop="description" content="彭晨的简单记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pengchen's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/" class="post-title-link" itemprop="url">分布式系统原理——100. 条分缕析分布式：到底什么是一致性？</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-02 17:38:21" itemprop="dateCreated datePublished" datetime="2021-01-02T17:38:21+08:00">2021-01-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-03 17:57:32" itemprop="dateModified" datetime="2021-01-03T17:57:32+08:00">2021-01-03</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261779&idx=1&sn=9fb74c24f8863837d584a96536ba8189&scene=21#wechat_redirect">这篇博客</a>，作为整理和收录，方便后续查阅。本篇文章非常推荐，与作者接下来的几篇文章都很不错，对于网上的分布式理论见解很深，且引的参考文章都很不错，可以参考看看，提升分布式系统理解很有帮助。</p>
+<p>&emsp;&emsp;凡是做服务器开发的技术同学，估计都对分布式系统以及相关的理论感兴趣。而对于分布式理论，大家讨论的最多的恐怕就是「分布式一致性」问题了。然而，不管是学术界还是业界的发展历史上，对于「一致性」这个概念的理解，始终充满了混乱。</p>
+<p>&emsp;&emsp;如果你问一个技术同学，到底什么是分布式一致性，估计会得到五花八门的答案。这其中比较常见的说法可能是这样的：一致性就是多个服务器节点中的数据保持一致（至少百度百科上差不多就是这么说的）。而如果再讨论得深入一点，可能就会谈到所谓的分布式一致性协议，比如Paxos之类的；还有CAP定理，也跟「一致性」有关。</p>
+<p>&emsp;&emsp;但是，「一致性」这个词是非常有迷惑性的。如果用英文来表达的话，跟「一致性」有关的至少有两个词：<em>consistency</em>和<em>consensus</em>。它们经常都被翻译成「一致性」，这进一步加剧了这个概念被滥用的程度。为了接下来讨论方便，我们先简单地澄清一下：</p>
+<ul>
+<li>网上通常提到的诸如Paxos之类的分布式一致性协议，其实是<em>consensus</em>这个词。它如果被翻译成「共识」，可能会更好一些。为了表达清晰，本文后面在讨论<em>consensus</em>问题的时候，尽量使用「共识」这个词。</li>
+<li>ACID或CAP里C，用的都是<em>consistency</em>这个词，但真实含义迥然不同。</li>
+<li>此外，还经常会听到人们关于「强一致性」的说法，而且这种说法通常都会牵涉到CAP定理或者「分布式事务」的概念。「强一致性」与CAP定理确实关系密切，但与「分布式事务」的关系却不知从何而来。</li>
+</ul>
+<p>&emsp;&emsp;下面，我们就对这些概念进行详细的解析。</p>
+<h3 id="ACID中的一致性"><a href="#ACID中的一致性" class="headerlink" title="ACID中的一致性"></a>ACID中的一致性</h3><p>&emsp;&emsp;ACID是数据库事务的四个特性，分别是原子性 (Atomicity)、一致性 (Consistency)、隔离性 (Isolation)和持久性 (Durability)。</p>
+<p>&emsp;&emsp;我们现在关注的是其中的C，即一致性<em>Consistency</em>。它是什么意思呢？通俗地说，它指的是任何一个数据库事务的执行，都应该让整个数据库保持在「一致」的状态。那怎样的状态才算「一致」呢？举个例子，假设在银行账户之间进行转账。显然，「转账」这个操作应该确保在转账前后账户总额保持不变，这是任何一个转账操作必须要遵守的规定。现在假设要从账户A向账户B转账100元，于是我们启动了一个数据库事务。在这个事务中，可以先从账号A中减去100元，再往账户B中增加100元。这样的一个事务操作，满足了“转账前后账户总额保持不变”的规定，因此我们说：这个事务操作保持了数据库的「一致性」；同时，在这个事务执行前后，数据库都处于一种「一致」的状态。</p>
+<p>&emsp;&emsp;从上一段的描述中，我们容易看出：</p>
+<ul>
+<li>ACID中的「一致性」，是对于整个数据库的「一致」状态的维持。抽象来看，对数据库每进行一次事务操作，它的状态就发生一次变化。这相当于把数据库看成了状态机，只要数据库的起始状态是「一致」的，并且每次事务操作都能保持「一致性」，那么数据库就能始终保持在「一致」的状态上 (Consistency Preservation)。</li>
+<li>所谓状态是不是「一致」，其实是由业务层规定的。比如前面这个转账的例子，“转账前后账户总额保持不变”，这个规定只对于「转账」这个特定的业务场景有效。如果换一个业务场景，「一致」的概念就不是这样规定了。所以说，ACID中的「一致性」，其实是体现了业务逻辑上的合理性，并不是由数据库本身的技术特性所决定的。</li>
+</ul>
+<p>&emsp;&emsp;我们再来看一下，为了让事务总是能保持ACID的一致性，我们需要在实现上考虑哪些因素呢？</p>
+<p>&emsp;&emsp;至少两个方面需要考虑：一个是出错情况 (failure/error)；一个是并发 (concurrency) 行为。</p>
+<p>&emsp;&emsp;首先，对于任何系统来说，错误都是在所难免的。而错误又可以细分为两类。</p>
+<p>&emsp;&emsp;第一类，事务本身的实现逻辑可能存在错误。比如，从账户A向账户B转账100元，在这个事务中，如果我们只从账号A中减去了100元，但忘记了往账户B中增加100元，那么这个事务就是错误的。显然，避免第一类错误，是保持一致性的前提，这需要应用层进行恰当的编码来保证。</p>
+<p>&emsp;&emsp;第二类，则是意想不到的各种软硬件错误。比如，还是从账户A向账户B转账100元，事务本身的实现逻辑没有问题，它先执行了从账号A中减去了100元，但在执行往账户B中增加100元之前，却发生了意想不到的错误，比如进程突然crash了，或是磁盘满了，或是网络突然不通了，或是其它任何可能的硬件错误。这时候，事务只执行了前一半，势必会破坏数据库整体状态的一致性。那怎么办呢？这其实就需要ACID中的A（原子性）来保障了。简言之，原子性保障了事务的执行要么全部成功，要么全部失败，而不允许出现“只执行了一半”这种“部分成功”的情况。</p>
+<p>&emsp;&emsp;其次，并发行为也可能会影响事务的一致性。在数据库系统中，并发行为体现在可能存在多个事务同时操作同一份数据的情况。还是拿前面转账的例子来说，假设有两个事务：事务1从账户A向账户B转账100元，事务2从账户A向账户C转账50元。如果两个事务先后顺序执行，自然没有问题。但如果两个事务同时执行了，那么可能会出现下面的执行序列（假设账号A的初始余额为x元）：</p>
+<ol>
+<li>&lt;事务1&gt;：读取账户A的余额，读到了x元；</li>
+<li>&lt;事务2&gt;：读取账户A的余额，也读到了x元；</li>
+<li>&lt;事务1&gt;：向账户A中写入(x-100)元；</li>
+<li>&lt;事务2&gt;：向账户A中写入(x-50)元；</li>
+<li>……</li>
+</ol>
+<p>&emsp;&emsp;上面的执行过程，账户A中最后被写入的值是(x-50)元，显然是不对的（事务的一致性会被破坏）。如果两个转账的事务能正确执行完，那么账户A的余额应该是(x-150)元才对。</p>
+<p>&emsp;&emsp;这个并发的问题怎么处理呢？这就需要ACID中的I（隔离性）来保障了。什么是隔离性呢？它对于并发执行的多个事务进行合理的排序，保障了不同事务的执行互不干扰。换言之，隔离性这种特性，能够让并发执行的多个事务就好像是按照「先后顺序」执行的一样。</p>
+<p>&emsp;&emsp;经过上面的分析，现在关于ACID中的一致性，我们可以得到一些结论了：</p>
+<ul>
+<li>ACID中的一致性，是个很偏应用层的概念。这跟ACID中的原子性、隔离性和持久性有很大的不同。原子性、隔离性和持久性，都是数据库本身所提供的技术特性；而一致性，则是由特定的业务场景规定的。怪不得《Designing Data-Intensive Applications》[1]一书的作者在书中写道：”<em>The letter C doesn’t really belong in ACID</em>“。</li>
+<li>要真正做到ACID中的一致性，它是要依赖数据库的原子性和隔离性的（应对错误和并发）。但是，就算数据库提供了所有你所需要的技术特性，也不一定能保证ACID的一致性。这还取决于你在应用层对于事务本身的实现逻辑是否正确无误。</li>
+<li>最后，ACID中的一致性，甚至跟分布式都没什么直接关系。它跟分布式的唯一关联在于，在分布式环境下，它所依赖的数据库原子性和隔离性更难实现。</li>
+</ul>
+<p>&emsp;&emsp;总之，ACID中的一致性，是一个非常特殊的概念。除了数据库事务处理，它很难扩展到其它场景，也跟分布式理论中的其它「一致性」概念没有什么关系。</p>
+<h3 id="分布式事务与共识算法的关系"><a href="#分布式事务与共识算法的关系" class="headerlink" title="分布式事务与共识算法的关系"></a>分布式事务与共识算法的关系</h3><p>&emsp;&emsp;先说共识问题 (consensus problem)。这是分布式系统中的一个十分基础而核心的问题，它表示如何在分布式系统中的多个节点之间就某事达成共识。</p>
+<p>&emsp;&emsp;网上通常提到的「分布式一致性协议」，或者「分布式一致性算法」，一般来说就是解决这里的共识问题的算法。用词的不同，是由于中英文翻译造成的。这些算法或协议，经常包含Paxos之类，但也可能包括两阶段提交协议(2PC)或三阶段提交协议(3PC)。</p>
+<p>&emsp;&emsp;人们既然经常将Paxos、2PC、3PC这些算法放在一起讨论，那么它们之间势必存在着某种相似性的。但这种相似性是怎么来的呢？我们仔细分析一下。Paxos，是解决共识问题的通用算法。它允许每个节点提出自己的提议(称为proposal），而Paxos算法能够不借助于任何中心化节点，保证各个节点之间对于提议最终达成一致。这里的proposal，是一个抽象的概念，它可以包含任何你想达成共识的数值。2PC和3PC，则是为了解决分布式事务提交问题的。</p>
+<p>&emsp;&emsp;这样从表面看起来，Paxos和2PC、3PC，这两类算法似乎没有多少相似性。2PC和3PC是跟分布式事务强相关的，而Paxos跟分布式事务没有什么特别的关系。为了分析更深层次的本质，我们探究一下2PC和3PC产生的背景。</p>
+<p>&emsp;&emsp;回到事务的概念。事务本来和分布式没什么直接关系的，就算在一个单节点的数据库上，要实现出事务的ACID特性，也不是那么容易的。只是，如同在前一章节的结尾我们提到的，在分布式环境下，事务的ACID特性更难实现。在前一章中我们主要关注ACID中的一致性，现在我们关注一下ACID中的原子性 (Atomicity)。</p>
+<p>&emsp;&emsp;ACID中的原子性，要求事务的执行要么全部成功，要么全部失败，而不允许出现“部分成功”的情况。在分布式事务中，这要求参与事务的所有节点，要么全部执行Commit操作，要么全部执行Abort操作。换句话说，参与事务的所有节点，需要在“执行Commit还是Abort”这一点上达成一致（其实就是共识）。这个问题在学术界被称为<strong>原子提交问题</strong>（Atomic Commitment Problem）[2]，而能够解决原子提交问题的算法，则被称为<strong>原子提交协议</strong>（Atomic Commitment Protocal，简称**<em>ACP**</em>）[3]。2PC和3PC，属于原子提交协议两种不同的具体实现。</p>
+<p>&emsp;&emsp;分析到这里，我们似乎发现了<strong>原子提交问题</strong>与<strong>共识问题</strong>的关联性：</p>
+<ul>
+<li>共识问题，解决的是如何在分布式系统中的多个节点之间就某个提议达成共识。</li>
+<li>原子提交问题，解决的是参与分布式事务的所有节点在“执行Commit还是Abort”这一点上达成共识。</li>
+<li>所以，原子提交问题是共识问题的一个特例。</li>
+</ul>
+<p>&emsp;&emsp;这个酷似「三段论」式的论述，看起来“合情合理”。实际上，学术界在很长一段时间内都认为，分布式事务的原子提交问题是拜占庭将军问题（Byzantine Generals Problem）的一个退化形式[4]。什么是拜占庭将军问题呢？简单来说，它也是分布式系统的一种<strong>共识问题</strong>，而且是容错性要求最高的一种共识问题。我们在这里不展开讨论拜占庭将军问题了，如果你对细节感兴趣，欢迎阅读我之前的另一篇文章“<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261626&idx=1&sn=6b32cc7a7a62bee303a8d1c4952d9031&scene=21#wechat_redirect">漫谈分布式系统、拜占庭将军问题与区块链</a>”。总之，学术界以前的这种观点，跟我们刚刚分析得到的结论（原子提交问题是共识问题的一个特例）差不多。</p>
+<p>&emsp;&emsp;但是，分布式系统的诡异之处就要体现在这里，一些细节的不同，可能导致非常大的差异。如果你仔细看前文的描述，会发现这样一个细节：当我们描述共识问题的时候，我们说的是在<strong>多个节点</strong>之间达成共识；而当我们描述原子提交问题的时候，我们说的是在<strong>所有节点</strong>之间达成共识。这个细微的差别，让这两类问题，几乎变成了完全不同的问题（谁也替代不了谁）。</p>
+<p>&emsp;&emsp;从两类问题各自的应用场景来看，这个差异是合理的，也是容易理解的。以解决共识问题的Paxos协议为例，它只要求网络中的大部分节点达成共识就可以了，这样Paxos才能提供一定的容错性，只要网络中发生故障的节点不超过一半仍然能够正常工作（不会被阻塞）。然而，解决原子提交问题的2PC或3PC则不同。即使只有一个节点发生故障了，其它节点也不能擅自决策进行Commit操作。因为这样的话，这个事务就只是「部分地执行成功了」，违反了ACID原子性的要求。所以，原子提交协议必须保证在参与分布式事务的<strong>所有节点</strong>（包括故障的节点）上对于“执行Commit还是Abort”达成共识。</p>
+<p>&emsp;&emsp;故障的节点可能什么都做不了，如何参与达成共识呢？这里的意思是，等故障节点恢复之后，它的决策（Commit或是Abort）必须与其它所有节点保持一致。那么，这是不是意味着，只要有节点发生故障，原子提交协议就一定会阻塞呢？这里有点让人奇怪，答案是「不一定」。根源就在于Abort和Commit并不是对等的决策。假设有一个节点宕机了，其它节点大可以选择Abort决策（注意不能选择Commit），从而让整个事务Abort掉（没有被阻塞住，等待宕机的节点恢复）。等宕机的那个节点恢复了，它会发现相应的事务已经执行Abort了，那么它也按照Abort处理就好了。在这个过程中，参与分布式事务的<strong>所有节点</strong>（包括宕机的这个节点）对于“执行Commit还是Abort”也是达成了共识的（这个共识是Abort）。正是这些细微却至关重要的细节，让2PC和3PC这种看似简单的协议实现起来没有那么容易。</p>
+<p>&emsp;&emsp;论文[5]进一步澄清了这一问题，原子提交问题被抽象成一个新的一致性问题，称为uniform consensus问题，它是与通常的共识问题（consensus problem）不同的问题，而且是更难的问题。uniform consensus，要求所有节点（包括故障节点）都要达成共识；而consensus问题只关注没有发生故障的节点达成共识。</p>
+<p>&emsp;&emsp;至此，我们总结一下本章节的结论：</p>
+<ul>
+<li>共识问题（consensus problem），解决的是如何在分布式系统中的多个节点之间就某个提议达成共识。它只关注没有发生故障的节点达成共识就可以了。</li>
+<li>在分布式事务中，ACID中的原子性，引出了原子提交问题，它解决的是参与分布式事务的所有节点在“执行Commit还是Abort”这一点上达成共识。原子提交问题属于uniform consensus问题，要求所有节点（包括故障节点）都要达成共识，是比consensus问题更难的一类问题。</li>
+<li>Paxos和解决拜占庭将军问题的算法，解决的是consensus问题；2PC/3PC，解决的是一个特定的uniform consensus问题。</li>
+</ul>
+<h3 id="CAP与线性一致性"><a href="#CAP与线性一致性" class="headerlink" title="CAP与线性一致性"></a>CAP与线性一致性</h3><p>&emsp;&emsp;CAP的三个字母分别代表了分布式系统的三个特性：一致性（Consistency）、可用性（Availability）和分区容错性（Partition-tolerance）。而CAP定理指出：任何一个分布式系统只能同时满足三个特性中的两个。但是，这一描述曾经引发了非常多的误解。</p>
+<p>&emsp;&emsp;为了进一步展开讨论，我们先关注CAP中的C，也就是一致性。它是什么意思呢？在证明CAP定理的原始论文中[6]，C指的是<em>linearizable consistency</em>，也就是「线性一致性」。更精简的英文表达则是<em>linearizability</em>。</p>
+<p>&emsp;&emsp;这听起来可能稍微有点奇怪，但事实就是这样。<strong>线性一致性</strong>（<em>linearizability</em>）是CAP中的C的原始定义。而很多人在谈到CAP时，则会把这个C看成是<strong>强一致性</strong>（<em>strong consistency</em>）。这其实也没错，因为线性一致性的另一个名字，就是强一致性[1]。只不过，相比「线性一致性」来说，「强一致性」并不是一个好名字。因为，从这个名字你看不出来它真实的含义（到底「强」在哪？）。在下面的讨论中，我们统一使用线性一致性(<em>linearizability</em>)这个词汇。</p>
+<p>&emsp;&emsp;那线性一致性是什么意思呢？它精确的形式化定义[7]非常抽象，且难以理解。大体上是说，在一个并发执行的环境中，不同的操作之间可能是有严格的先后关系的（一个操作执行结束之后另一个操作才开始执行），也可能是并发执行的（一个操作还没执行结束，另一个操作就开始执行了）；如果能够把所有操作排列成一个「合法」的全局线性顺序，那么这些操作就是满足线性一致性的。当然，在这个重新排列的过程中，原来就存在的严格的先后关系，必须得以保持。</p>
+<p>&emsp;&emsp;但是，怎么才算合法呢？我们具体到一个存储系统中通过例子来说明。假如我们先往某个数据对象中写入了一个值（假设是1），然后在写入操作结束之后，我们再把这个数据对象读出来（在写入和读取操作之间没有其它的写入操作了）。如果我们发现读取到的值是1，那么就是合法的；而如果读出来的值不是1，那么就是非法的。再假设，我们又执行了一次读取操作，发现读出来的值仍然是1，那么就是合法的；否则就是非法的。也就是说，如果一个读操作已经读到了某个值，那么下一个对于同一个数据对象的读操作就必须读取到同样的值（除非在两次读操作之间还存在别的写入操作）。</p>
+<p>&emsp;&emsp;这些例子都比较容易理解，因为站在观察者的角度它们是符合逻辑的。因此，对于一个分布式存储系统来说，线性一致性的含义可以用一个具体的描述来取代：对于任何一个数据对象来说，<strong>系统表现得就像它只有一个副本一样</strong>[1]。“表现得像只有一个副本”，也就相当于满足了前面的「合法」条件。显然，如果系统对于每个数据对象真的只存一个副本，那么肯定是满足线性一致性的。但是单一副本不具有容错性，所以分布式存储系统一般都会对数据进行复制（replication），也就是保存多个副本。这时，在一个分布式多副本的存储系统中，要提供线性一致性的保证，就需要付出额外的成本了。</p>
+<p>&emsp;&emsp;网上对于CAP的一致性的通俗解释，通常有两种：</p>
+<ol>
+<li>一致性是指：在分布式系统完成某写操作后的任何读操作，都应该获取到该写操作写入的那个最新的值。显然，如果系统“表现得像只有一个副本”一样，这个描述是成立的。不过这只是描述了线性一致性的一个特例而已，有以偏概全的嫌疑。</li>
+<li>一致性是指：保持所有节点在同一个时刻具有相同的、逻辑一致的数据。显然这种解释并不是从观察者的角度来描述的，而是试图从系统内部的行为（内部实现）来描述的。「所有节点」，可能指的是「所有副本」；至于“在同一个时刻具有相同的、逻辑一致的数据”这个说法，则似乎离线性一致性的本来含义偏离太远了。从逻辑上说，“表现得像只有一个副本”，并不一定需要系统“在同一个时刻具有相同的、逻辑一致的数据”。线性一致性可能有很多种实现方式，而这种解释规定了一种具体的系统实现，同样有以偏概全的嫌疑。</li>
+</ol>
+<p>&emsp;&emsp;我们前面提到，线性一致性，也被称为强一致性。之所以这么说，大概是因为线性一致性要求多个副本上的数据必须保持如此之「强」的一致性，以至于“让系统表现得就像只有一个副本”。</p>
+<p>&emsp;&emsp;另外，网上的资料提到强一致性的时候，还有可能会关联到分布式事务上面，比如2PC/3PC这些原子提交协议。但把它们关联到一起的说法，其深层次含义到底是什么，只能靠猜测。分布式事务处理的并不是同一个数据对象的多个副本的问题，而指的是将针对多个数据对象的各种操作组合起来，提供ACID的特性。将分布式事务看成是强一致性的保证，猜测可能实际上指的就是ACID的原子性。总之，「强一致性」这个词很容易产生误解，所以建议谨慎使用。</p>
+<p>&emsp;&emsp;在历史上，CAP定理具有巨大的知名度，但它实际的影响力却没有想象的那么大。随着分布式理论的发展，我们逐渐认识到，CAP并不是一个「大一统」的理论，远不能涵盖分布式系统设计中方方面面的问题。相反，CAP引发了很多误解和理解上的混乱（细节不讨论了）。因此，可以预见到，未来CAP定理的影响将会进一步被削弱。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>&emsp;&emsp;本文我们辨析了分布式系统中的诸多被称为「一致性」的概念。但这个话题还没有完，我将在下一篇文章中跟大家继续讨论顺序一致性、线性一致性、最终一致性等概念。</p>
+<h3 id="参考文献："><a href="#参考文献：" class="headerlink" title="参考文献："></a>参考文献：</h3><ul>
+<li>[1] Martin Kleppmann,《Designing Data-Intensive Applications》, 2017.</li>
+<li>[2] Vassos Hadzilacos, “On The Relationship Between The Atomic Commitment And Consensus Problems”, 1990.</li>
+<li>[3] Philip A. Bernstein, Vassos Hadzilacos, Nathan Goodman, 《Concurrency Control And Recovery in Database Systems》, 1987.</li>
+<li>[4] Jim Gray, “A Comparison Of The Byzantine Agreement Problem And The Transaction Commit Problem”, 1988.</li>
+<li>[5] Bernadette Charron-Bost, André Schiper, “Uniform Consensus Is Harder Than Consensus”, 2001.</li>
+<li>[6] Seth Gilbert, Nancy Lynch, “Brewer’s Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web”, 2002.</li>
+<li>[7] MAURICE P. HERLIHY, JEANNETTE M. WING, “Linearizability: A Correctness Condition for Concurrent Objects”, 1990.</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/03/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-101-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E6%B5%85%E6%9E%90%E5%BC%BA%E5%BC%B1%E4%B8%80%E8%87%B4%E6%80%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Peng Chen">
+      <meta itemprop="description" content="彭晨的简单记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pengchen's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/03/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-101-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E6%B5%85%E6%9E%90%E5%BC%BA%E5%BC%B1%E4%B8%80%E8%87%B4%E6%80%A7/" class="post-title-link" itemprop="url">分布式系统原理——101. 条分缕析分布式：浅析强弱一致性</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-01-03 17:55:33 / 修改时间：18:10:43" itemprop="dateCreated datePublished" datetime="2021-01-03T17:55:33+08:00">2021-01-03</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261790&idx=1&sn=08449ee5b39d93b25442c1e583e3ba99&scene=21#wechat_redirect">这篇博客</a>，作为整理和收录，方便后续查阅。本篇文章非常推荐，与作者接下来的几篇文章都很不错，对于网上的分布式理论见解很深，且引的参考文章都很不错，可以参考看看，提升分布式系统理解很有帮助。</p>
+<p>&emsp;&emsp;当前这篇文章至少比计划拖后了两个月。在上一篇文章《<a target="_blank" rel="noopener" href="https://yangtzeshore.github.io/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/">条分缕析分布式：到底什么是一致性？</a>》中，我们仔细辨析了「一致性」相关的几个容易混淆的概念。而在本文中，我们会沿着逐步深入的思路，跟大家继续讨论顺序一致性、线性一致性、最终一致性等几个概念。</p>
+<p>为了避免产生歧义，我们先明确一下这几个概念的英文表达：</p>
+<ul>
+<li>顺序一致性的英文是：<em>sequential consistency</em>。</li>
+<li>线性一致性的英文是：<em>linearizability</em>。实际上，它就是CAP定理中的C，我们在<a target="_blank" rel="noopener" href="https://yangtzeshore.github.io/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/">上一篇文章</a>中已经提到过。</li>
+<li>最终一致性的英文是：<em>eventual consistency</em>。</li>
+</ul>
+<p>&emsp;&emsp;在进行详细的技术性讨论之前，我们先把本文要讨论的几个重点问题和结论列出如下：</p>
+<ul>
+<li>线性一致性和顺序一致性，属于分布式系统的一致性模型 (<em>consistency model</em>)。这代表了分布式系统的一个非常非常重要的方面。</li>
+<li>通常人们把线性一致性称为「强一致性」，把最终一致性称为「弱一致性」，但线性一致性和最终一致性其实存在本质的区别。严格来说，它们并不是一个范畴的概念。</li>
+<li>一致性模型之间的「强弱」比较，是一个相对的概念。比如，线性一致性是比顺序一致性更强的一致性模型。当然，除了线性一致性和顺序一致性，也存在其它一些一致性模型（其中很多都比顺序一致性要弱）。</li>
+<li>满足线性一致性的系统，也必定满足顺序一致性，但反过来不一定。这是由一致性模型之间的强弱关系决定的。</li>
+</ul>
+<p>&emsp;&emsp;下面，我们就开始详细的解析。</p>
+<h3 id="一致性模型的来历"><a href="#一致性模型的来历" class="headerlink" title="一致性模型的来历"></a>一致性模型的来历</h3><p>&emsp;&emsp;我们之所以使用分布式系统，无非是因为分布式系统能带来一些「好处」，比如容错性、可扩展性等等。为了获得这些「好处」，分布式系统实现上常用的方法是复制 (<em>replication</em>) 和分片 (<em>sharding</em>)。而我们将要讨论的一致性模型 (<em>consistency model</em>)，主要是与复制有关。因此这里我们先关注一下复制的机制。</p>
+<p>&emsp;&emsp;复制指的是将同一份数据保存在多个网络节点上。而保存同一份数据拷贝的节点，被称为副本 (replica)。复制带来的具体「好处」主要是体现在两个方面：</p>
+<ul>
+<li>容错 (<em>fault tolerance</em>)。即使某些网络节点发生故障，由于原本保存着在故障节点上的数据在正常节点上还有备份，所以整个系统仍然可能是可用的。这也是我们期待分布式系统能够提供的「高可用」特性。</li>
+<li>提升吞吐量。将一份数据复制多份并保存在多个副本节点上，还顺便带来一个好处：对于同一个数据对象的访问请求（至少是读请求）可以由多个副本节点分担，从而使得整个系统可以随着请求量的增加不断扩展。</li>
+</ul>
+<p>&emsp;&emsp;一方面，复制带来了诸多好处；另一方面，它也带来了很多挑战，其中最重要的一个就是数据的一致性问题。由于同一份数据保存在了多个副本节点上，它们之间就存在数据不一致的风险。我们当然希望同一份数据的不同副本总是保持一致。换句话说，我们希望在其中一个副本上所做的修改，在其它副本上也能随时观察到（即读取到）。</p>
+<p>&emsp;&emsp;当然我们心里都清楚，让所有副本在任何时刻都保持一致，是不可能的。因为副本之间的数据同步即使速度再快，也是需要时间的。不过幸运的是，我们其实并不关心所有时刻的数据一致性情况。只要系统能够保证，每当我们去「观察」的时候（即读取数据副本的时候），系统表现出来的行为是一致的，就可以了。换句话说，即使在两次「观察」之间，系统内部出现了短暂的数据不一致的情况，只要系统保证外部用户无论如何都发现不了，我们也是可以满意的。</p>
+<p>&emsp;&emsp;这意味着，我们应该从系统用户（使用系统的开发者）的角度，来对数据一致性的要求进行定义。</p>
+<p>实际上，早期的分布式系统设计者们对系统设计的要求，也是按照类似的思路进行的。在理想情况下，系统应该维持类似SSI (<em>single-system image</em>)[1]或<em>distribution transparency</em>[2]的特性。这两个概念要表达的核心意思是，系统内部有关分布式实现的复杂性应该对系统的外部用户透明；也就是说，对于系统的外部用户来说，系统应该表现得就好像只有一个单一的副本一样。如果系统能够提供这种「单一系统视图」或「透明性」，那么系统的使用者就能以比较简单的方式来使用系统；否则就可能带来很大的负担。</p>
+<p>&emsp;&emsp;系统“表现得就好像只有一个单一的副本”，这是一个相当「笼统」的说法。在此我们讨论3个具体的例子：</p>
+<ol>
+<li>我们先向一个副本节点写入<em>x</em>=42，然后读取数据对象<em>x</em>的值。显然，不管我们从哪个副本节点上进行读取，我们都希望读到最新写入的值（也就是42）。只有这样才合理。</li>
+<li>两个系统用户分别在两个副本节点上同时执行写操作。其中，用户A在第1个副本上执行<em>x</em>=42；用户B在第2个副本上执行<em>x</em>=43。然后用户C读取<em>x</em>的值。虽然两个写操作是「同时」进行的，但为了让系统“表现得像只有一个副本”，我们还是需要对它们进行一个先后排序。又因为它们是「同时」执行的，所以谁先谁后都有可能是合理的。如果我们认为<em>x</em>=42在<em>x</em>=43之前先执行，那么读取到的<em>x</em>的值就应该是43；反过来，如果我们认为<em>x</em>=43在x=42之前先执行，那么读取到的<em>x</em>的值就应该是42。</li>
+<li>用户A先在第1个副本上执行<em>x</em>=42，然后用户B再在第2个副本上执行<em>x</em>=43，最后用户C在第3个副本上读取<em>x</em>的值。仍然为了让系统“表现得像只有一个副本”，直觉上看，用户C读取到的<em>x</em>的值似乎应该是43。但是，也不一定非要如此。因为两个写操作是分别由用户A和用户B发起的，他们并不知道彼此谁先谁后（虽然从时间上看用户A的写操作确实在先）。所以，我们也可以选择认为用户B执行<em>x</em>=43在用户A执行<em>x</em>=42之前。这样的话，用户C读取到的<em>x</em>的值就应该是42。当然，根据本文后面的讨论，这种排序就不满足线性一致性了，但却满足顺序一致性。</li>
+</ol>
+<p>&emsp;&emsp;从这些例子不难看出，一个系统在数据一致性上的具体表现如何，取决于系统对关键事件（读写操作）的排序和执行采取什么样的规则和限制。比如在上面第3个例子中，出现了两种对于读写操作的排序。前一种排序是：</p>
+<ol>
+<li>用户A执行<em>x</em>=42。</li>
+<li>用户B执行<em>x</em>=43。</li>
+<li>用户C读取到<em>x</em>的值是43。</li>
+</ol>
+<p>而第3个例子中的后一种排序是：</p>
+<ol>
+<li>用户B执行<em>x</em>=43。</li>
+<li>用户A执行<em>x</em>=42。</li>
+<li>用户C读取到<em>x</em>的值是42。</li>
+</ol>
+<p>&emsp;&emsp;虽然这两种排序结果不同，但它们都做到了让系统“表现得像只有一个副本”。它们的不同在于，前一种排序遵循了不同用户的操作的时间先后顺序，而后一种排序没有。实际上，如果我们要求系统满足线性一致性，就只能得到前一种排序结果；而如果只要求系统满足顺序一致性，就有可能得到后一种排序结果（等看完本文后面的讨论，你就能自己得到这些结论）。</p>
+<p>&emsp;&emsp;可以这么说，一个分布式系统对于读写操作的某种排序和执行规则，就定义了一种一致性模型 (<em>consistency model</em>)。当一个系统选定了某种特定的一致性模型（比如线性一致性或顺序一致性），那么你就只能看到这种一致性模型所允许的那些操作序列。还是拿前面第3个例子来说明：如果你选定了线性一致性模型，那么系统就不会向你呈现后一种排序，你只能看到前一种排序。</p>
+<p>&emsp;&emsp;另外，在前面的三个例子中，不管系统最终给出了哪种排序结果，所有系统的用户其实都对那种操作序列达成了一致的看法。还有一些一致性模型，并不要求所有用户对操作排序的结果达成唯一的一种看法。这样的一致性模型稍显复杂，我们会放在下一篇文章中再讨论（比如因果一致性）。</p>
+<p>&emsp;&emsp;接下来，为了更清晰地认识一致性模型，我们来深入到线性一致性和顺序一致性的一些细节中去。</p>
+<h3 id="线性一致性和顺序一致性"><a href="#线性一致性和顺序一致性" class="headerlink" title="线性一致性和顺序一致性"></a>线性一致性和顺序一致性</h3><p>&emsp;&emsp;在讨论之前，我们先把组成分布式系统的一些关键概念定义清楚：</p>
+<ul>
+<li>整个系统可以看成由多个<strong>进程</strong>和一个共享的<strong>数据存储</strong>组成。对于数据存储的读写操作由进程发起。这里的进程，相当于本文前面提到的系统用户或系统使用者。</li>
+<li>同一个进程发起的读写操作是先后顺序执行的。注意，这里的「进程」概念跟我们平常编程时用到的进程有所不同，进程里面不再分多个线程了。</li>
+<li>数据存储可能有多个副本，但我们在讨论一致性模型的时候，把它看成一个整体来看待，不区分读写操作提交到了具体哪个副本上。</li>
+<li>每个操作的执行，从开始调用到执行结束，都需要花一定的时间。因此，一个进程发起的操作还没有执行完的时候，另一个进程的操作可能就已经开始了。</li>
+</ul>
+<p>&emsp;&emsp;可见，系统的多个进程是并发执行的。下面我们通过一个例子来说明这种并发执行的情况，进而解释顺序一致性的概念。</p>
+<p><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/%E5%88%86%E5%B8%83%E5%BC%8F/1.webp" alt="图片"></p>
+<p>&emsp;&emsp;上面是一个类似「时空图」的图像，表达了3个进程（<em>P</em>1、<em>P</em>2和<em>P</em>3）对于数据存储的读写执行过程。在这个图中，横向从左到右表示时间递增，黑色的线段表示每个操作的执行起止。线段上面的符号表示具体的读写操作：</p>
+<ul>
+<li><em>A</em> –&gt; <em>w**i</em>(<em>x</em>)，表示一个写操作：第<em>i</em>个进程向数据对象<em>x</em>写入了值<em>A</em>。</li>
+<li><em>r**i</em>(<em>x</em>) –&gt; <em>A</em>，表示一个读操作：第<em>i</em>个进程从数据对象<em>x</em>中读到了值<em>A</em>。</li>
+</ul>
+<p>&emsp;&emsp;现在我们要考察的问题是：上图的这样一个执行过程，是否满足顺序一致性？要回答这个问题，我们首先得知道顺序一致性的定义是什么。</p>
+<p>&emsp;&emsp;<strong>顺序一致性</strong>定义[3,4]：如果一个并发执行过程所包含的所有读写操作能够重排成一个全局线性有序的序列，并且这个序列满足以下两个条件，那么这个并发执行过程就是满足顺序一致性的：</p>
+<ul>
+<li><strong>条件I</strong>：重排后的序列中每一个读操作返回的值，必须等于前面对同一个数据对象的最近一次写操作所写入的值。</li>
+<li><strong>条件II</strong>：原来每个进程中各个操作的执行先后顺序，在这个重排后的序列中必须保持一致。</li>
+</ul>
+<p>&emsp;&emsp;以上图的执行过程为例，我们重排所有的6个读写操作，可以得到如下的有序序列：</p>
+<ol>
+<li><em>A</em> –&gt; <em>w**1</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>A</em></li>
+<li><em>C</em> –&gt; <em>w**2</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>C</em></li>
+<li><em>B</em> –&gt; <em>w**1</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>B</em></li>
+</ol>
+<p>&emsp;&emsp;很容易看出，这个序列是满足前面顺序一致性定义中的两个条件的：</p>
+<ul>
+<li>条件I：在这个重排后的序列中，每个读操作都返回了前面最近一次写入的值，比如第2个操作读到的值<em>A</em>，是前面第1个操作写入的；第4个操作读到的值<em>C</em>，是前面第3个操作写入的。</li>
+<li>条件II：原来进程<em>P</em>1中的两个写操作，<em>A</em> –&gt; <em>w**1</em>(<em>x</em>)和<em>B</em> –&gt;<em>w**1</em>(<em>x</em>)，在这个重排后的序列中仍然保持了先后顺序。与此类似，原来进程<em>P</em>3中的3个读操作，在这个重排后的序列中也保持了原来的先后顺序。</li>
+</ul>
+<p>&emsp;&emsp;所以现在我们可以回答前面的问题了：上图中的执行过程，是满足顺序一致性的。</p>
+<p>&emsp;&emsp;你可能会问，顺序一致性为什么会这样定义呢？这个定义的初衷是什么？</p>
+<p>&emsp;&emsp;我们可以试着这样理解：首先，重排成一个全局线性有序的序列，相当于系统对外表现出了一种「假象」，原本多进程并发执行的操作，好像是顺序执行的一样。本文前面提到过，理想情况下，分布式系统应该“表现得像只有一个副本”一样。顺序一致性正是遵循了这种「系统假象」，系统对外表现就好像在操作一个单一的副本，执行顺序也必然是可以看做顺序执行的。而条件I规定了系统的表现是合理的（即合乎逻辑的）；条件II则保证了以任何进程的视角来看，它所发起的操作执行顺序都是符合它原本的预期的。总之，一个满足顺序一致性的系统，对外表现就好像总是在操作一个副本一样。</p>
+<p>&emsp;&emsp;我们再通过一个例子来看一看这个问题的反面——不满足顺序一致性的执行过程是怎样的。</p>
+<p><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/%E5%88%86%E5%B8%83%E5%BC%8F/2.webp" alt="图片"></p>
+<p>&emsp;&emsp;这个图中的执行过程，与前面第一个图的执行过程非常相似，只是进程<em>P</em>3的几个操作的执行顺序稍有变化。</p>
+<p>&emsp;&emsp;我们根据前面顺序一致性的定义再来试着对这个执行过程中的所有操作进行重排：首先根据条件II和进程<em>P</em>1的执行顺序，我们知道，<em>A</em> –&gt; <em>w**1</em>(<em>x</em>)一定要排在<em>B</em> –&gt; <em>w**1</em>(<em>x</em>)前面；再根据条件I，进程<em>P</em>1的<em>B</em> –&gt; <em>w**1</em>(<em>x</em>)一定要排在进程<em>P</em>3的<em>r**3</em>(<em>x</em>) –&gt; <em>B</em>前面。最后，再结合条件II和进程<em>P</em>3的执行顺序，我们能够得出结论，进程<em>P</em>1和进程<em>P</em>3的所有操作，在最终重排后的完整序列中，必然保持以下的顺序：</p>
+<ol>
+<li><em>A</em> –&gt; <em>w**1</em>(<em>x</em>)</li>
+<li><em>B</em> –&gt; <em>w**1</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>B</em></li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>C</em></li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>A</em></li>
+</ol>
+<p>&emsp;&emsp;我们会发现，上面的序列有两个地方不满足条件I：</p>
+<ul>
+<li>第4个操作读到了值<em>C</em>，而前面最近一次写操作（第2个操作）所写入的值是<em>B</em>。</li>
+<li>第5个操作读到了值<em>A</em>，而前面最近一次写操作（也是第2个操作）所写入的值是<em>B</em>。</li>
+</ul>
+<p>&emsp;&emsp;我们还剩一个进程<em>P</em>2的写操作，即<em>C</em> –&gt; <em>w**2</em>(<em>x</em>)，没有放到最后这个序列中。也许我们可以试着将它放置到第3和第4个操作之间，这样就能把前面第一个不满足条件I的地方修复掉。但无论如何，也无法得到一个完全符合条件I和条件II的完整序列了。因此，前面第二个图中的执行过程，是不满足顺序一致性的。进一步说，如果一个系统的执行呈现出了这样的一种执行过程（如前面第二个图所示），那我们可以肯定地说，这个系统是没有遵守顺序一致性的。</p>
+<p>&emsp;&emsp;我们再来考察一下线性一致性的概念。线性一致性的定义[5]，与顺序一致性非常相似，也是试图把所有读写操作重排成一个全局线性有序的序列，但除了满足前面的条件I和条件II之外，还要同时满足一个条件：</p>
+<ul>
+<li><strong>条件III</strong>：不同进程的操作，如果在时间上不重叠，那么它们的执行先后顺序，在这个重排后的序列中必须保持一致。</li>
+</ul>
+<p>&emsp;&emsp;根据最新定义的条件III，我们来重新评判一下前面第一个图所展现出来的执行过程是不是满足它。为了阅读和讨论方便，我们把第一个图重新展示在下面：</p>
+<p><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/%E5%88%86%E5%B8%83%E5%BC%8F/3.webp" alt="图片"></p>
+<p>&emsp;&emsp;针对条件III，我们分析一下各个操作之间的先后顺序：</p>
+<ul>
+<li>进程<em>P</em>1的<em>B</em> –&gt; <em>w**1</em>(<em>x</em>)和进程<em>P</em>2的<em>C</em> –&gt; <em>w**2</em>(<em>x</em>)，在执行时间上是重叠的，所以它们的排序不受条件III的约束。即，在重排后的序列中，这两个操作谁先谁后都可以。同样，进程<em>P</em>1的<em>B</em> –&gt; <em>w**1</em>(<em>x</em>)和进程<em>P</em>3的<em>r**3</em>(<em>x</em>) –&gt; <em>A</em>，也是如此。</li>
+<li>进程<em>P</em>1的<em>A</em> –&gt; <em>w**1</em>(<em>x</em>)和进程<em>P</em>2的<em>C</em> –&gt; <em>w**2</em>(<em>x</em>)，在执行时间上是不重叠的，即前一个操作都执行完了，后一个操作才开始执行。那么，这两个操作就必须满足条件III了：在重排后的序列中，<em>A</em> –&gt; <em>w**1</em>(<em>x</em>)必须排在<em>C</em> –&gt; <em>w**2</em>(<em>x</em>)前面。</li>
+<li>与上面同样的道理，在重排后的序列中，进程<em>P</em>2的<em>C</em> –&gt;<em>w**2</em>(<em>x</em>)必须排在进程<em>P</em>3的<em>r**3</em>(<em>x</em>) –&gt; <em>A</em>之前。</li>
+</ul>
+<p>&emsp;&emsp;容易看出，在遵守这样的先后关系约束的前提下，不管怎么重排，都无法得到一个满足条件I的完整序列了。所以说，前面第一个图所示的满足顺序一致性的执行过程，是不满足线性一致性的。</p>
+<p>&emsp;&emsp;下面我们举一个满足线性一致性的例子：</p>
+<p><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/%E5%88%86%E5%B8%83%E5%BC%8F/4.webp" alt="图片"></p>
+<p>&emsp;&emsp;上图的执行过程，所有操作重排后，可以得到如下的有序序列：</p>
+<ol>
+<li><em>A</em> –&gt; <em>w**1</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>A</em></li>
+<li><em>C</em> –&gt; <em>w**2</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>C</em></li>
+<li><em>B</em> –&gt; <em>w**1</em>(<em>x</em>)</li>
+<li><em>r**3</em>(<em>x</em>) –&gt; <em>B</em></li>
+</ol>
+<p>&emsp;&emsp;不难看出，这个序列是满足所有的条件I、条件II和条件III这三个条件的。因此，这个执行过程满足线性一致性。</p>
+<p>&emsp;&emsp;细心的你可能已经发现了，最后这个线性一致性的例子，得到的重排后的序列，与开始第一个顺序一致性的例子重排后的序列，完全相同。当然，这两个例子中原始的多进程并发执行过程，是不同的。这是符合预期的（没有什么可奇怪的）。</p>
+<p>&emsp;&emsp;现在我们可以仔细分析一下条件II和条件III，它们囊括了任意两个操作之间所有可能的先后关系：</p>
+<ul>
+<li>进程内的任意两个操作之间，总是先后顺序执行的（执行时间上不可能重叠）；而根据条件II，它们的先后顺序在最后重排后的序列中也会保持。</li>
+<li>不同进程的不同操作之间，在执行时间上可能重叠（并发执行），也可能不重叠。根据条件III，不重叠的两个操作，它们在时间上的先后顺序，在最后重排后的序列中会得以保持。而对于执行时间上重叠的两个操作，它们在最后重排后的序列中的先后顺序没有规定。</li>
+</ul>
+<p>&emsp;&emsp;最后，我们比较一下顺序一致性和线性一致性：</p>
+<ul>
+<li>它们都试图让系统“表现得像只有一个副本”一样。</li>
+<li>它们都保证了程序执行顺序不会被打乱。体现在条件II对于进程内各个操作的排序保持上。</li>
+<li>线性一致性考虑了时间先后顺序，而顺序一致性没有。</li>
+<li>满足线性一致性的执行过程，肯定都满足顺序一致性；反之不一定。</li>
+</ul>
+<p>&emsp;&emsp;注意一下上面第3点两者在时间先后顺序上的不同。这意味着：</p>
+<ul>
+<li>线性一致性隐含了时效性保证（recency guarantee）。它保证我们总是能读到数据最新的值。</li>
+<li>在顺序一致性中，我们有可能读到旧版本的数据。比如，在本文第一个顺序一致性的例子中，在进程<em>P</em>2将数据对象<em>x</em>的值写成了<em>C</em>之后，进程<em>P</em>3仍然读到了旧的值（<em>A</em>）。</li>
+</ul>
+<h3 id="最终一致性和它的特殊性"><a href="#最终一致性和它的特殊性" class="headerlink" title="最终一致性和它的特殊性"></a>最终一致性和它的特殊性</h3><p>&emsp;&emsp;我们在<a target="_blank" rel="noopener" href="https://yangtzeshore.github.io/2021/01/02/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E5%8E%9F%E7%90%86-100-%E6%9D%A1%E5%88%86%E7%BC%95%E6%9E%90%E5%88%86%E5%B8%83%E5%BC%8F%EF%BC%9A%E5%88%B0%E5%BA%95%E4%BB%80%E4%B9%88%E6%98%AF%E4%B8%80%E8%87%B4%E6%80%A7/">上一篇文章</a>中提到过，CAP定理[6]中的C，指的就是线性一致性 (<em>linearizability</em>)。它也经常被称为「强一致性」。</p>
+<p>&emsp;&emsp;根据CAP定理，当存在网络分区的时候，我们必须在可用性 (<em>availability</em>) 和强一致性之间进行取舍。</p>
+<p>&emsp;&emsp;另外，即使在没有网络分区存在的情况下，我们也必须在延迟 (<em>latency</em>) 和强一致性之间进行取舍[7]。这是因为，系统维持强一致性是有成本的。想要维持越强的一致性，就需要在副本节点之间做更多的通信和协调工作，因此会降低操作的总延迟，进而降低整个系统的性能。</p>
+<p>&emsp;&emsp;从20世纪90年代中期开始，互联网开始蓬勃发展，系统的规模也变得越来越大。人们设计大型分布式系统的指导思想，也逐步开始更倾向于系统的高可用性和高性能。取舍的结果就是，降低系统提供的一致性保障。这其中非常重要的一条思路就是最终一致性[2]。</p>
+<p>&emsp;&emsp;最终一致性的设计思路，不再试图提供单一系统视图 (SSI)，即不再试图让系统“表现得像只有一个副本”一样。它允许读到旧版本的数据。最终一致性的原始出处是论文[2]，作者在论文中给出的最终一致性的定义如下：</p>
+<blockquote>
+<p>Eventual consistency. This is a specific form of weak consistency; the storage system guarantees that if no new updates are made to the object, eventually all accesses will return the last updated value.(译文：最终一致性是弱一致性的一种特殊形式；存储系统保证，如果对象没有新的修改操作，那么所有的访问最终都会返回最新写入的值。)</p>
+</blockquote>
+<p>&emsp;&emsp;我们发现，虽然最终一致性和本文前面讨论的线性一致性或顺序一致性在命名上非常相似，但它的定义却与后两者存在非常大的差别。深层的原因在于，它们其实属于不同类别的系统属性 (<em>property</em>)。线性一致性和顺序一致性属于<em>safety property</em>（安全性）；而最终一致性属于<em>liveness property</em>（活性）[8]。</p>
+<p>&emsp;&emsp;一个并发程序或者一个分布式系统，它们的执行所展现出来的系统属性，可以分为两大类：</p>
+<ul>
+<li><strong><em>safety\</em></strong>：它表示「坏事」永远不会发生。比如，一个系统如果遵守线性一致性或顺序一致性，那么就永远不会出现违反三个（对于顺序一致性来说是两个）条件的执行过程。而一旦系统出现问题，<em>safety</em>被违反了，我们也能明确指出是在哪个时间点上出现意外的。</li>
+<li><strong><em>liveness\</em></strong>：它表示「好事」最终会发生。这种属性听起来会比较神奇：在任何一个时间点，你都无法判定<em>liveness</em>被违反了。因为，即使你期望的「好事」还没有发生，也不代表它未来不会发生。就像最终一致性一样，即使当前系统处于不一致的状态，也不代表未来系统就不会达到一致的状态。而只要系统存在“在未来某个时刻达到一致状态”的可能性，最终一致性就没有被违反。另外，可用性 (<em>availability</em>) 也属于<em>liveness</em>属性。</li>
+</ul>
+<p>&emsp;&emsp;由此可见，我们在前一小节之所以能够将线性一致性和顺序一致性放在一起讨论和比较，是因为它们都属于<em>safety</em>属性。而最终一致性属于<em>liveness</em>属性，跟这两者存在本质的区别。实际上，最终一致性有点名不副实，它更好的名字可能是收敛性 (<em>convergence</em>)，表示所有副本最终都会收敛到相同的值[9]。</p>
+<p>&emsp;&emsp;通常来说，只有当<em>safety</em>和<em>liveness</em>这两种属性被同时考虑时，一个系统才能提供有意义的系统保证[1]。而当系统设计者遵循最终一致性的设计思路时，相当于放弃了所有的<em>safety</em>属性。这意味着，对于系统使用者来说，你必须针对数据不一致的可能性做好补偿措施 (<em>compensation</em>)。这也是最终一致性系统难用的地方。但不管怎么说，最终一致性仍然被认为是系统提供数据一致性的最低要求[1]。</p>
+<h3 id="一致性的强弱关系"><a href="#一致性的强弱关系" class="headerlink" title="一致性的强弱关系"></a>一致性的强弱关系</h3><p>&emsp;&emsp;在本文开头，我们提到过，通常人们把线性一致性称为「强一致性」，把最终一致性称为「弱一致性」。但对于指代特定的一种一致性模型来说，「强一致性」和「弱一致性」都不是一个好名字。因为强和弱，是个相对的概念。</p>
+<p>&emsp;&emsp;根据本文前面的讨论，从线性一致性，到顺序一致性，再到最终一致性，一致性的强度依次减弱。但是，一致性模型的强弱关系，其实是有更严格的定义的：</p>
+<ul>
+<li>当且仅当一个一致性模型所能接受的执行过程，都能被另一个一致性模型所接受时（前者的集合是后者集合的子集），我们就说前者是比后者「更强」(stronger) 的一致性模型。</li>
+</ul>
+<p>&emsp;&emsp;按照这个更严格的强弱关系定义，线性一致性是比顺序一致性更强的一致性模型。这是因为，线性一致性比顺序一致性多了一个条件III，所以凡是满足线性一致性的执行过程，肯定也满足顺序一致性。</p>
+<p>&emsp;&emsp;我们仔细分析一下也能知道，一致性模型的强弱关系定义，是基于<em>safety</em>属性定义的。所以，将线性一致性或顺序一致性与最终一致性比较强弱，这并不是一个严格的做法。实际上，就像我们前一小节所讨论的，最终一致性在<em>safety</em>方面提供的保证为零，它是属于<em>liveness</em>的概念。一个系统可以在提供最终一致性的同时，也提供另外一种更强一点的带有<em>safety</em>属性的一致性（比如因果一致性）。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>&emsp;&emsp;就如同我在之前另外一篇文章《<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzA4NTg1MjM0Mg==&mid=2657261626&idx=1&sn=6b32cc7a7a62bee303a8d1c4952d9031&scene=21#wechat_redirect">漫谈分布式系统、拜占庭将军问题与区块链</a>》中所指出的，<strong>理解问题本身比知道问题的答案要重要的多</strong>。本文中，我们辨析了线性一致性、顺序一致性、最终一致性这些概念，以及他们的关系和区别。由此我们了解到了分布式系统的一些核心问题，但我们并未讨论怎么解决这些问题。比如，采用什么算法才能提供线性一致性；面对最终一致性的系统，应该怎样编程，包括怎样处理边界情况，等等。相对于理解问题本身而言，这些反而都是细节。</p>
+<p>&emsp;&emsp;在这个系列的下一篇文章中，我们将依然遵循这样的思路，具体解析因果一致性，以及分布式系统更深层的事件排序问题。</p>
+<h3 id="参考文献："><a href="#参考文献：" class="headerlink" title="参考文献："></a>参考文献：</h3><ul>
+<li>[1] Peter Bailis, Ali Ghodsi, “Eventual Consistency Today: Limitations, Extensions, and Beyond”, 2013.</li>
+<li>[2] Werner Vogels, “Eventually Consistent”, 2008.</li>
+<li>[3] Leslie Lamport, “How to Make a Multiprocessor Computer That Correctly Executes Multiprocess Progranm”, 1979.</li>
+<li>[4] Mustaque Ahamad, Gil Neiger, James E. Burns, et al, “Causal Memory: Definitions, Implementation and Programming”, 1994.</li>
+<li>[5] Maurice P. Herlihy, Jeannette M. Wing, “Linearizability: A Correctness Condition for Concurrent Objects”, 1990.</li>
+<li>[6] Seth Gilbert, Nancy Lynch, “Brewer’s Conjecture and the Feasibility of Consistent, Available, Partition-Tolerant Web”, 2002.</li>
+<li>[7] Peter Bailis, Ali Ghodsi, et al, “Bolt-on Causal Consistency”, 2013.</li>
+<li>[8] Bowen Alpern, Fred B. Schneider, “Defining Liveness”, 1985.</li>
+<li>[9] Martin Kleppmann,《Designing Data-Intensive Applications》, 2017.</li>
+<li>[10] Prince Mahajan, Lorenzo Alvisi, Mike Dahlin, “Consistency, Availability, and Convergence”, 2011.</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-1-%E6%8E%A5%E5%8F%A3%E5%B9%82%E7%AD%89%E6%80%A7/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1110,83 +1365,6 @@
 <p>&emsp;&emsp;实际运作过程中，你要结合自己的业务来，比如说利用 Redis，用 orderId 作为唯一键。只有成功插入这个支付流水，才可以执行实际的支付扣款。</p>
 <p>&emsp;&emsp;要求是支付一个订单，必须插入一条支付流水，order_id 建一个唯一键 <code>unique key</code> 。你在支付一个订单之前，先插入一条支付流水，order_id 就已经进去了。你就可以写一个标识到 Redis 里面去， <code>set order_id payed</code> ，下一次重复请求过来了，先查 Redis 的 order_id 对应的 value，如果是 <code>payed</code> 就说明已经支付过了，你就别重复支付了。</p>
 <h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-idempotency.md">1. distributed-system-idempotenc</a></p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Peng Chen">
-      <meta itemprop="description" content="彭晨的简单记录">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pengchen's Blog">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2020/10/25/%E5%88%86%E5%B8%83%E5%BC%8F-%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1-2-%E6%8E%A5%E5%8F%A3%E8%AF%B7%E6%B1%82%E9%A1%BA%E5%BA%8F%E6%80%A7/" class="post-title-link" itemprop="url">分布式系统设计——2. 接口请求顺序性</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2020-10-25 10:15:11 / 修改时间：10:22:13" itemprop="dateCreated datePublished" datetime="2020-10-25T10:15:11+08:00">2020-10-25</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>&emsp;&emsp;这篇文章取自<a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-request-sequence.md">这篇博客</a>，作为整理和收录，方便后续查阅。</p>
-<p>&emsp;&emsp;其实分布式系统接口的调用顺序，也是个问题，一般来说是不用保证顺序的。但是<strong>有时候</strong>可能确实是需要<strong>严格的顺序</strong>保证。给大家举个例子，你服务 A 调用服务 B，先插入再删除。好，结果俩请求过去了，落在不同机器上，可能插入请求因为某些原因执行慢了一些，导致删除请求先执行了，此时因为没数据所以啥效果也没有；结果这个时候插入请求过来了，好，数据插入进去了，那就尴尬了。</p>
-<p>&emsp;&emsp;本来应该是 “先插入 -&gt; 再删除”，这条数据应该没了，结果现在 “先删除 -&gt; 再插入”，数据还存在，最后你死都想不明白是怎么回事。</p>
-<p>&emsp;&emsp;所以这都是分布式系统一些很常见的问题。</p>
-<p>&emsp;&emsp;首先，一般来说，个人建议是，你们从业务逻辑上设计的这个系统最好是不需要这种顺序性的保证，因为一旦引入顺序性保障，比如使用<strong>分布式锁</strong>，会<strong>导致系统复杂度上升</strong>，而且会带来<strong>效率低下</strong>，热点数据压力过大等问题。</p>
-<p>&emsp;&emsp;下面我给个我们用过的方案吧，简单来说，首先你得用 Dubbo 的一致性 hash 负载均衡策略，将比如某一个订单 id 对应的请求都给分发到某个机器上去，接着就是在那个机器上，因为可能还是多线程并发执行的，你可能得立即将某个订单 id 对应的请求扔一个<strong>内存队列</strong>里去，强制排队，这样来确保他们的顺序性。</p>
-<p><a href=""><img src="https://raw.githubusercontent.com/yangtzeshore/images/main/Dubbo/distributed-system-request-sequence.png" alt="distributed-system-request-sequence"></a></p>
-<p>&emsp;&emsp;但是这样引发的后续问题就很多，比如说要是某个订单对应的请求特别多，造成某台机器成<strong>热点</strong>怎么办？解决这些问题又要开启后续一连串的复杂技术方案…… 曾经这类问题弄的我们头疼不已，所以，还是建议什么呢？</p>
-<p>&emsp;&emsp;最好是比如说刚才那种，一个订单的插入和删除操作，能不能合并成一个操作，就是一个删除，或者是其它什么，避免这种问题的产生。</p>
-<h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-request-sequence.md">1. distributed-system-request-sequence</a></p>
 
       
     </div>
@@ -1271,7 +1449,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">29</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
