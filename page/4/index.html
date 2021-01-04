@@ -26,27 +26,27 @@
   <meta name="description" content="彭晨的简单记录">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Pengchen&#39;s Blog">
-<meta property="og:url" content="http://example.com/tags/Zookeeper/index.html">
+<meta property="og:url" content="http://example.com/page/4/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
 <meta property="og:description" content="彭晨的简单记录">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:author" content="Peng Chen">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/tags/Zookeeper/">
+<link rel="canonical" href="http://example.com/page/4/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome : false,
+    isHome : true,
     isPost : false,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>标签: Zookeeper | Pengchen's Blog</title>
+  <title>Pengchen's Blog</title>
   
 
 
@@ -155,52 +155,138 @@
         <div class="content-wrap">
           
 
-          <div class="content tag">
+          <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
 
-  
-  
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <h2 class="collection-header">Zookeeper
-          <small>标签</small>
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Peng Chen">
+      <meta itemprop="description" content="彭晨的简单记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pengchen's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/" class="post-title-link" itemprop="url">局域网互访虚机</a>
         </h2>
-      </div>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-10-19 15:10:27" itemprop="dateCreated datePublished" datetime="2020-10-19T15:10:27+08:00">2020-10-19</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-10-22 16:58:05" itemprop="dateModified" datetime="2020-10-22T16:58:05+08:00">2020-10-22</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2020</span>
+          <h1 id="局域网互访虚机"><a href="#局域网互访虚机" class="headerlink" title="局域网互访虚机"></a>局域网互访虚机</h1><ul>
+<li><a href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE">宿主机配置</a></li>
+<li><a href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE">虚机配置</a></li>
+<li><a href="#kvm%E9%85%8D%E7%BD%AE">kvm配置</a></li>
+</ul>
+<h2 id="宿主机配置"><a href="#宿主机配置" class="headerlink" title="宿主机配置"></a><span id="宿主机配置">宿主机配置</span></h2><p>找到/etc/network/interfaces，在后面添加</p>
+<pre><code>auto br0     //添加的桥接网卡，新的名字
+iface br0 inet static
+address 10.0.1.60    //宿主机IP
+netmask 255.255.254.0
+broadcast 10.0.1.255
+gateway 10.0.0.1
+dns-nameservers 114.114.114.114  
+bridge_ports enp0s31f6   //宿主机网卡名
+bridge_fd 9</code></pre>
+<p>然后在宿主机</p>
+<pre><code>sudo ifup br0</code></pre>
+<h2 id="虚机配置"><a href="#虚机配置" class="headerlink" title="虚机配置"></a><span id="虚机配置">虚机配置</span></h2><p>在 <strong>每台</strong> 虚机下配置</p>
+<p>/etc/hostname<br>sysctl kernel.hostname=yourhostname</p>
+<p>打开/etc/sysconfig/network-scripts/ifcfg-eth0，依照以下修改，注意：ONBOOT=yes和static。</p>
+<pre><code>HWADDR=52:54:00:2a:b9:f3
+TYPE=Ethernet  
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=yes
+IPV6_AUTOCONF=yes
+IPV6_DEFROUTE=yes
+IPV6_FAILURE_FATAL=no
+NAME=ens3   //虚机网卡名字
+UUID=f9c0608a-3290-4a44-b209-7c25aaa7fec8
+DEVICE=ens3  //虚机网卡名字
+ONBOOT=yes  //一定yes
+DNS1=114.114.114.114  //连外网必备
+IPADDR=10.0.0.152   //你要配的虚机网卡IP，0网段
+PREFIX=23  //。。
+GATEWAY=10.0.0.1  //。。
+IPV6_PEERDNS=yes
+IPV6_PEERROUTES=yes</code></pre>
+<h2 id="kvm配置"><a href="#kvm配置" class="headerlink" title="kvm配置"></a><span id="kvm配置">kvm配置</span></h2><p>打开每台虚机的kvm设置，点击感叹号，点击NIC，找到网络源，选择桥接br0，点击应用确定。然后强制关机再开机（你也可以等待重启）。然后就可以在局域网访问你的虚机了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a><span id="其他问题">其他问题</span></h2><h3 id="ubuntu环境设置DNS"><a href="#ubuntu环境设置DNS" class="headerlink" title="ubuntu环境设置DNS"></a>ubuntu环境设置DNS</h3><p>在Ubuntu环境下，打开网页非常缓慢，很可能是DNS设置异常的问题。</p>
+<ul>
+<li><p>方法1：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;network&#x2F;interfaces</span><br><span class="line">dns-nameservers 114.114.114.114</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>方法2：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf&#x2F;base  </span><br><span class="line">或者&#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf.d&#x2F;base</span><br><span class="line">修改为：</span><br><span class="line">nameserver 8.8.8.8</span><br><span class="line">nameserver 8.8.4.4</span><br><span class="line">然后执行resolvconf -u  </span><br></pre></td></tr></table></figure>
+
+<p>就能在/etc/resolv.conf文件中多出2行。<br>还有一种方式是修改/etc/resolvconf/resolv.conf/head，不过这个文件系统不建议修改。</p>
+</li>
+</ul>
+
+      
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2020-10-30T10:14:20+08:00"
-              content="2020-10-30">
-          10-30
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2020/10/30/Zookeeper-%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF/" itemprop="url">
-            <span itemprop="name">Zookeeper——使用场景</span>
-          </a>
-      </div>
-
-    </header>
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
   </article>
-
-    </div>
-  </div>
   
   
   
 
+
   
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span>
+  </nav>
 
 
 
