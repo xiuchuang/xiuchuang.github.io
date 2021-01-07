@@ -227,17 +227,15 @@
 
       
         <h2 id="TwoSum"><a href="#TwoSum" class="headerlink" title="TwoSum"></a>TwoSum</h2><ul>
-<li><a href="#%E9%A2%98%E7%9B%AE%E4%BB%8B%E7%BB%8D">题目介绍</a></li>
-<li><a href="#%E9%A2%98%E7%9B%AE%E8%A7%A3%E6%B3%95">题目解法</a></li>
+<li><a href="#题目介绍">题目介绍</a></li>
+<li><a href="#题目解法">题目解法</a></li>
 </ul>
 <h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a><span id="题目介绍">题目介绍</span></h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/two-sum/">两数之和</a></p>
 <p>给定一个整数数组 <code>nums</code> 和一个目标值 <code>target</code>，请你在该数组中找出和为目标值的那 <strong>两个</strong> 整数，并返回他们的数组下标。</p>
 <p>你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。</p>
 <p><strong>示例:</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">给定 nums &#x3D; [2, 7, 11, 15], target &#x3D; 9</span><br><span class="line"></span><br><span class="line">因为 nums[0] + nums[1] &#x3D; 2 + 7 &#x3D; 9</span><br><span class="line">所以返回 [0, 1]</span><br></pre></td></tr></table></figure>
-
 <h2 id="题目解法"><a href="#题目解法" class="headerlink" title="题目解法"></a><span id="题目解法">题目解法</span></h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">int</span>[] twoSum(<span class="keyword">int</span>[] nums, <span class="keyword">int</span> target) &#123;</span><br><span class="line">        <span class="keyword">int</span>[] indexs = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">2</span>];</span><br><span class="line">        <span class="comment">// k 数值, v 下标</span></span><br><span class="line">        Map&lt;Integer, Integer&gt; hashMap = <span class="keyword">new</span> HashMap&lt;Integer, Integer&gt;();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; nums.length; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (hashMap.containsKey(nums[i])) &#123;</span><br><span class="line">                indexs[<span class="number">0</span>] = hashMap.get(nums[i]);</span><br><span class="line">                indexs[<span class="number">1</span>] = i;</span><br><span class="line">            &#125;</span><br><span class="line">            hashMap.put(target - nums[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> indexs;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
 <p>思路：</p>
 <ul>
 <li>利用隐藏的条件，必定有两个数满足target。</li>
@@ -462,6 +460,8 @@
 
 
 
+
+  
 
   
 

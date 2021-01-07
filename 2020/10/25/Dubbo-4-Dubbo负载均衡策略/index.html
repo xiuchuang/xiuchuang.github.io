@@ -239,21 +239,16 @@
 <h3 id="dubbo-集群容错策略"><a href="#dubbo-集群容错策略" class="headerlink" title="dubbo 集群容错策略"></a>dubbo 集群容错策略</h3><h4 id="Failover-Cluster-模式"><a href="#Failover-Cluster-模式" class="headerlink" title="Failover Cluster 模式"></a>Failover Cluster 模式</h4><p>&emsp;&emsp;失败自动切换，自动重试其他机器，<strong>默认</strong>就是这个，常见于读操作。（失败重试其它机器）</p>
 <p>可以通过以下几种方式配置重试次数：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:service retries&#x3D;&quot;2&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
 <p>&emsp;&emsp;或者</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:reference retries&#x3D;&quot;2&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
 <p>&emsp;&emsp;或者</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:reference&gt;</span><br><span class="line">    &lt;dubbo:method name&#x3D;&quot;findFoo&quot; retries&#x3D;&quot;2&quot; &#x2F;&gt;</span><br><span class="line">&lt;&#x2F;dubbo:reference&gt;</span><br></pre></td></tr></table></figure>
-
 <h4 id="Failfast-Cluster-模式"><a href="#Failfast-Cluster-模式" class="headerlink" title="Failfast Cluster 模式"></a>Failfast Cluster 模式</h4><p>&emsp;&emsp;一次调用失败就立即失败，常见于非幂等性的写操作，比如新增一条记录（调用失败就立即失败）</p>
 <h4 id="Failsafe-Cluster-模式"><a href="#Failsafe-Cluster-模式" class="headerlink" title="Failsafe Cluster 模式"></a>Failsafe Cluster 模式</h4><p>&emsp;&emsp;出现异常时忽略掉，常用于不重要的接口调用，比如记录日志。</p>
 <p>&emsp;&emsp;配置示例如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:service cluster&#x3D;&quot;failsafe&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
 <p>&emsp;&emsp;或者</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;dubbo:reference cluster&#x3D;&quot;failsafe&quot; &#x2F;&gt;</span><br></pre></td></tr></table></figure>
-
 <h4 id="Failback-Cluster-模式"><a href="#Failback-Cluster-模式" class="headerlink" title="Failback Cluster 模式"></a>Failback Cluster 模式</h4><p>&emsp;&emsp;失败了后台自动记录请求，然后定时重发，比较适合于写消息队列这种。</p>
 <h4 id="Forking-Cluster-模式"><a href="#Forking-Cluster-模式" class="headerlink" title="Forking Cluster 模式"></a>Forking Cluster 模式</h4><p><strong>&emsp;&emsp;并行调用</strong>多个 provider，只要一个成功就立即返回。常用于实时性要求比较高的读操作，但是会浪费更多的服务资源，可通过 <code>forks=&quot;2&quot;</code> 来设置最大并行数。</p>
 <h4 id="Broadcast-Cluster-模式"><a href="#Broadcast-Cluster-模式" class="headerlink" title="Broadcast Cluster 模式"></a>Broadcast Cluster 模式</h4><p>&emsp;&emsp;逐个调用所有的 provider。任何一个 provider 出错则报错（从 <code>2.1.0</code> 版本开始支持）。通常用于通知所有提供者更新缓存或日志等本地资源信息。</p>
@@ -482,6 +477,8 @@
 
 
 
+
+  
 
   
 

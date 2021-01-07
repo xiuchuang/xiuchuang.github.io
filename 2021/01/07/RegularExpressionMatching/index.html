@@ -31,10 +31,8 @@
 <meta property="og:description" content="整数反转 题目介绍 题目解法  题目介绍正则表达式匹配 给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 ‘.’ 和 ‘*’ 的正则表达式匹配。  ‘.’ 匹配任意单个字符 ‘*’ 匹配零个或多个前面的那一个元素  所谓匹配，是要涵盖 整个 字符串 s的，而不是部分字符串。 示例 1： 123输入：s &#x3D; &quot;aa&quot; p &#x3D; &quot;a&amp;quot">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2021-01-07T01:04:13.000Z">
-<meta property="article:modified_time" content="2021-01-07T02:28:32.998Z">
+<meta property="article:modified_time" content="2021-01-07T02:48:08.956Z">
 <meta property="article:author" content="Peng Chen">
-<meta property="article:tag" content="Leetcode">
-<meta property="article:tag" content="算法">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2021/01/07/RegularExpressionMatching/">
@@ -190,7 +188,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-01-07 09:04:13 / 修改时间：10:28:32" itemprop="dateCreated datePublished" datetime="2021-01-07T09:04:13+08:00">2021-01-07</time>
+              <time title="创建时间：2021-01-07 09:04:13 / 修改时间：10:48:08" itemprop="dateCreated datePublished" datetime="2021-01-07T09:04:13+08:00">2021-01-07</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -221,8 +219,8 @@
 
       
         <h2 id="整数反转"><a href="#整数反转" class="headerlink" title="整数反转"></a>整数反转</h2><ul>
-<li><a href="#%E9%A2%98%E7%9B%AE%E4%BB%8B%E7%BB%8D">题目介绍</a></li>
-<li><a href="#%E9%A2%98%E7%9B%AE%E8%A7%A3%E6%B3%95">题目解法</a></li>
+<li><a href="#题目介绍">题目介绍</a></li>
+<li><a href="#题目解法">题目解法</a></li>
 </ul>
 <h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a><span id="题目介绍">题目介绍</span></h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/regular-expression-matching/">正则表达式匹配</a></p>
 <p>给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 ‘.’ 和 ‘*’ 的正则表达式匹配。</p>
@@ -233,19 +231,14 @@
 <p>所谓匹配，是要涵盖 整个 字符串 s的，而不是部分字符串。</p>
 <p><strong>示例 1：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s &#x3D; &quot;aa&quot; p &#x3D; &quot;a&quot;</span><br><span class="line">输出：false</span><br><span class="line">解释：&quot;a&quot; 无法匹配 &quot;aa&quot; 整个字符串。</span><br></pre></td></tr></table></figure>
-
 <p><strong>示例 2:</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s &#x3D; &quot;aa&quot; p &#x3D; &quot;a*&quot;</span><br><span class="line">输出：true</span><br><span class="line">解释：因为 &#39;*&#39; 代表可以匹配零个或多个前面的那一个元素, 在这里前面的元素就是 &#39;a&#39;。因此，字符串 &quot;aa&quot; 可被视为 &#39;a&#39; 重复了一次。</span><br></pre></td></tr></table></figure>
-
 <p><strong>示例 3：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s &#x3D; &quot;ab&quot; p &#x3D; &quot;.*&quot;</span><br><span class="line">输出：true</span><br><span class="line">解释：&quot;.*&quot; 表示可匹配零个或多个（&#39;*&#39;）任意字符（&#39;.&#39;）。</span><br></pre></td></tr></table></figure>
-
 <p><strong>示例 4：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：s &#x3D; &quot;aab&quot; p &#x3D; &quot;c*a*b&quot;</span><br><span class="line">输出：true</span><br><span class="line">解释：因为 &#39;*&#39; 表示零个或多个，这里 &#39;c&#39; 为 0 个, &#39;a&#39; 被重复一次。因此可以匹配字符串 &quot;aab&quot;。</span><br></pre></td></tr></table></figure>
-
 <p><strong>示例 5：</strong></p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入：s &#x3D; &quot;mississippi&quot; p &#x3D; &quot;mis*is*p*.&quot;</span><br><span class="line">输出：false</span><br></pre></td></tr></table></figure>
-
 <p><strong>提示：</strong></p>
 <ul>
 <li>0 &lt;= s.length &lt;= 20</li>
@@ -256,34 +249,52 @@
 </ul>
 <h2 id="题目解法"><a href="#题目解法" class="headerlink" title="题目解法"></a><span id="题目解法">题目解法</span></h2><p>这道题没有做出来，参考了官方的解题思路，只要看懂了，写出动态方程，解题并不难。如果是感性的字符匹配理解的话，很容易陷入死循环的理解和字符匹配泥沼。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> algorithm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RegularExpressionMatching</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        String s = <span class="string">&quot;aa&quot;</span>, p = <span class="string">&quot;a&quot;</span>;</span><br><span class="line">        System.out.print(isMatch(s, p));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;aa&quot;</span>; p = <span class="string">&quot;a*&quot;</span>;</span><br><span class="line">        System.out.print(isMatch(s, p));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;ab&quot;</span>; p = <span class="string">&quot;.*&quot;</span>;</span><br><span class="line">        System.out.print(isMatch(s, p));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;aab&quot;</span>; p = <span class="string">&quot;c*a*b&quot;</span>;</span><br><span class="line">        System.out.print(isMatch(s, p));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;mississippi&quot;</span>; p = <span class="string">&quot;mis*is*p*.&quot;</span>;</span><br><span class="line">        System.out.print(isMatch(s, p));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isMatch</span><span class="params">(String s, String p)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> m = s.length();</span><br><span class="line">        <span class="keyword">int</span> n = p.length();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 注意初始化都是false</span></span><br><span class="line">        <span class="keyword">boolean</span>[][] f = <span class="keyword">new</span> <span class="keyword">boolean</span>[m + <span class="number">1</span>][n + <span class="number">1</span>];</span><br><span class="line">        f[<span class="number">0</span>][<span class="number">0</span>] = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= m; ++i) &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; ++j) &#123;</span><br><span class="line">                <span class="keyword">if</span> (p.charAt(j - <span class="number">1</span>) == <span class="string">&#x27;*&#x27;</span>) &#123;</span><br><span class="line">                    <span class="comment">// 对着公式，这是缩减写法</span></span><br><span class="line">                    f[i][j] = f[i][j - <span class="number">2</span>];</span><br><span class="line">                    <span class="keyword">if</span> (matches(s, p, i, j - <span class="number">1</span>)) &#123;</span><br><span class="line">                        f[i][j] = f[i][j] || f[i - <span class="number">1</span>][j];</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">if</span> (matches(s, p, i, j)) &#123;</span><br><span class="line">                        f[i][j] = f[i - <span class="number">1</span>][j - <span class="number">1</span>];</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> f[m][n];</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这里比较的一定是字符情况，所以不必考虑星号；且j一定是大于1</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">matches</span><span class="params">(String s, String p, <span class="keyword">int</span> i, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (i == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (p.charAt(j - <span class="number">1</span>) == <span class="string">&#x27;.&#x27;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> s.charAt(i - <span class="number">1</span>) == p.charAt(j - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
 <p>打印：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">false</span><br><span class="line">true</span><br><span class="line">true</span><br><span class="line">true</span><br><span class="line">false</span><br></pre></td></tr></table></figure>
-
 <p><strong>思路：</strong></p>
 <p>题目中的匹配是一个「逐步匹配」的过程：我们每次从字符串 <code>p</code> 中取出一个字符或者「字符 + 星号」的组合，并在 <code>s</code> 中进行匹配。对于 <code>p</code> 中一个字符而言，它只能在<code>s</code>中匹配一个字符，匹配的方法具有唯一性；而对于 <code>p</code> 中字符 + 星号的组合而言，它可以在 <code>s</code> 中匹配任意自然数个字符，并不具有唯一性。因此我们可以考虑使用动态规划，对匹配的方案进行枚举。</p>
 <p>我们用 <code>f[i][j]</code>表示 <code>s</code>  的前<code>i</code>个字符与<code>p</code> 中的前<code>j</code>个字符是否能够匹配。在进行状态转移时，我们考虑<code>p</code>的第<code>j</code>个字符的匹配情况：</p>
 <ul>
-<li>如果<code>p</code>的第<code>j</code>个字符是一个小写字母，那么我们必须在<code>s</code>中匹配一个相同的小写字母，即<br>$$<br>f[i][j] = \begin{cases} f[i-1][j-1]，\quad  s[i]=p[j] \ false， \quad \quad \quad \quad s[i]\neq p[j]\end{cases}<br>$$</li>
+<li>如果<code>p</code>的第<code>j</code>个字符是一个小写字母，那么我们必须在<code>s</code>中匹配一个相同的小写字母，即<script type="math/tex; mode=display">
+f[i][j] = \begin{cases} f[i-1][j-1]，\quad  s[i]=p[j] \\ false， \quad \quad \quad \quad s[i]\neq p[j]\end{cases}</script></li>
 </ul>
 <p>也就是说，如果$s$的第$i$个字符与$p$ 的第$j$个字符不相同，那么无法进行匹配；否则我们可以匹配两个字符串的最后一个字符，完整的匹配结果取决于两个字符串前面的部分。</p>
 <ul>
-<li>如果$p$ 的第$j$个字符是$*$ *，那么就表示我们可以对 $p$ 的第$j-1$ 个字符匹配任意自然数次。在匹配 00 次的情况下，我们有<br>$$<br>f[i][j] = f[i][j-2]<br>$$</li>
+<li>如果$p$ 的第$j$个字符是$<em>$ </em>，那么就表示我们可以对 $p$ 的第$j-1$ 个字符匹配任意自然数次。在匹配 00 次的情况下，我们有<script type="math/tex; mode=display">
+f[i][j] = f[i][j-2]</script></li>
 </ul>
 <p>也就是我们「浪费」了一个字符 + 星号的组合，没有匹配任何 $s$中的字符。</p>
-<p>在匹配 $1,2,3, ⋯$ 次的情况下，类似地我们有<br>$$<br>f[i][j] = f[i-1][j-1], \quad        if s[i] = p[j-1] \<br>f[i][j] = f[i-2][j-1], \quad         if s[i-1] = s[i] = p[j-1] \<br>f[i][j] = f[i-3][j-1],     \quad     if s[i-2] = s[i-1] = s[i] = p[j-1] \<br>…<br>$$<br>如果我们通过这种方法进行转移，那么我们就需要枚举这个组合到底匹配了$s$中的几个字符，会增导致时间复杂度增加，并且代码编写起来十分麻烦。我们不妨换个角度考虑这个问题：字母 + 星号的组合在匹配的过程中，本质上只会有两种情况：</p>
+<p>在匹配 $1,2,3, ⋯$ 次的情况下，类似地我们有</p>
+<script type="math/tex; mode=display">
+f[i][j] = f[i-1][j-1], \quad        if s[i] = p[j-1] \\
+f[i][j] = f[i-2][j-1], \quad         if s[i-1] = s[i] = p[j-1] \\
+f[i][j] = f[i-3][j-1],     \quad     if s[i-2] = s[i-1] = s[i] = p[j-1] \\
+...</script><p>如果我们通过这种方法进行转移，那么我们就需要枚举这个组合到底匹配了$s$中的几个字符，会增导致时间复杂度增加，并且代码编写起来十分麻烦。我们不妨换个角度考虑这个问题：字母 + 星号的组合在匹配的过程中，本质上只会有两种情况：</p>
 <ul>
 <li>匹配 $s$末尾的一个字符，将该字符扔掉，而该组合还可以继续进行匹配；</li>
 <li>不匹配字符，将该组合扔掉，不再进行匹配。</li>
 </ul>
-<p>如果按照这个角度进行思考，我们可以写出很精巧的状态转移方程：<br>$$<br>f[i][j] = \begin {cases} f[i-1][j] \quad or \quad f[i][j-2]，\quad  s[i]=p[j-1] \ f[i][j-2]， \quad \quad \quad \quad \quad \quad \quad \quad s[i]\neq p[j]\end{cases}<br>$$</p>
-<ul>
+<p>如果按照这个角度进行思考，我们可以写出很精巧的状态转移方程：</p>
+<script type="math/tex; mode=display">
+f[i][j] = \begin {cases} f[i-1][j] \quad or \quad f[i][j-2]，\quad  s[i]=p[j-1] \\ f[i][j-2]， \quad \quad \quad \quad \quad \quad \quad \quad s[i]\neq p[j]\end{cases}</script><ul>
 <li>在任意情况下，只要$p[j]$ 是 $.$，那么一定$p[j]$成功匹配中的任 $s$意一个小写字母。</li>
 </ul>
-<p>最终的状态转移方程如下：<br>$$<br>f[i][j]=<br>    \begin{cases}<br>        if(p[j] \neq ‘*’)=<br>        \begin {cases} f[i-1][j-1]，\quad  matchs(s[i],p[j]) \<br>            false， \quad \quad \quad \quad otherwise<br>        \end {cases}\<br>        otherwise=<br>        \begin {cases} f[i-1][j] \quad or \quad f[i][j-2]，\quad  matchs(s[i],p[j-1]) \<br>            f[i][j-2]， \quad \quad \quad \quad \quad \quad \quad \quad otherwise<br>        \end{cases}<br>    \end{cases}<br>$$<br>其中 ${matches}(x, y)$判断两个字符是否匹配的辅助函数。只有当 $y$是 $.$ 或者 $x$和$y$本身相同时，这两个字符才会匹配。</p>
+<p>最终的状态转移方程如下：</p>
+<script type="math/tex; mode=display">
+f[i][j]=
+    \begin{cases}
+        if(p[j] \neq '*')= 
+        \begin {cases} f[i-1][j-1]，\quad  matchs(s[i],p[j]) \\ 
+            false， \quad \quad \quad \quad otherwise
+        \end {cases}\\
+        otherwise= 
+        \begin {cases} f[i-1][j] \quad or \quad f[i][j-2]，\quad  matchs(s[i],p[j-1]) \\ 
+            f[i][j-2]， \quad \quad \quad \quad \quad \quad \quad \quad otherwise
+        \end{cases}
+    \end{cases}</script><p>其中 ${matches}(x, y)$判断两个字符是否匹配的辅助函数。只有当 $y$是 $.$ 或者 $x$和$y$本身相同时，这两个字符才会匹配。</p>
 <p><strong>细节</strong></p>
 <p>动态规划的边界条件为 $f[0][0] = true$，即两个空字符串是可以匹配的。最终的答案即为 $f[m][n]$，其中 $m$ 和 $n$ 分别是字符串 $s$和 $p$的长度。由于大部分语言中，字符串的字符下标是从 $0$ 开始的，因此在实现上面的状态转移方程时，需要注意状态中每一维下标与实际字符下标的对应关系。</p>
-<p>在上面的状态转移方程中，如果字符串 $p$中包含一个「字符 + 星号」的组合（例如 $a*$），那么在进行状态转移时，会先将 $a$ 进行匹配（当 $p[j]$为 $a$ 时），再将 $a*$ 作为整体进行匹配（当 $p[j]$为 $<em>$ 时）。然而，在题目描述中，我们必须将 $a</em>$ 看成一个整体，因此将 $a$ 进行匹配是不符合题目要求的。看来我们进行了额外的状态转移，这样会对最终的答案产生影响吗？这个问题留给读者进行思考。这里我认为是不影响的，题目是解法的一个特例。</p>
+<p>在上面的状态转移方程中，如果字符串 $p$中包含一个「字符 + 星号」的组合（例如 $a<em>$），那么在进行状态转移时，会先将 $a$ 进行匹配（当 $p[j]$为 $a$ 时），再将 $a</em>$ 作为整体进行匹配（当 $p[j]$为 $<em>$ 时）。然而，在题目描述中，我们必须将 $a</em>$ 看成一个整体，因此将 $a$ 进行匹配是不符合题目要求的。看来我们进行了额外的状态转移，这样会对最终的答案产生影响吗？这个问题留给读者进行思考。这里我认为是不影响的，题目是解法的一个特例。</p>
 
     </div>
 
@@ -292,10 +303,6 @@
     
 
       <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/Leetcode/" rel="tag"># Leetcode</a>
-              <a href="/tags/%E7%AE%97%E6%B3%95/" rel="tag"># 算法</a>
-          </div>
 
         
 
@@ -502,6 +509,63 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

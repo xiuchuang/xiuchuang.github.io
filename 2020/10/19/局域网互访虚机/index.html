@@ -227,9 +227,9 @@
 
       
         <h1 id="局域网互访虚机"><a href="#局域网互访虚机" class="headerlink" title="局域网互访虚机"></a>局域网互访虚机</h1><ul>
-<li><a href="#%E5%AE%BF%E4%B8%BB%E6%9C%BA%E9%85%8D%E7%BD%AE">宿主机配置</a></li>
-<li><a href="#%E8%99%9A%E6%9C%BA%E9%85%8D%E7%BD%AE">虚机配置</a></li>
-<li><a href="#kvm%E9%85%8D%E7%BD%AE">kvm配置</a></li>
+<li><a href="#宿主机配置">宿主机配置</a></li>
+<li><a href="#虚机配置">虚机配置</a></li>
+<li><a href="#kvm配置">kvm配置</a></li>
 </ul>
 <h2 id="宿主机配置"><a href="#宿主机配置" class="headerlink" title="宿主机配置"></a><span id="宿主机配置">宿主机配置</span></h2><p>找到/etc/network/interfaces，在后面添加</p>
 <pre><code>auto br0     //添加的桥接网卡，新的名字
@@ -240,10 +240,10 @@ broadcast 10.0.1.255
 gateway 10.0.0.1
 dns-nameservers 114.114.114.114  
 bridge_ports enp0s31f6   //宿主机网卡名
-bridge_fd 9</code></pre>
-<p>然后在宿主机</p>
-<pre><code>sudo ifup br0</code></pre>
-<h2 id="虚机配置"><a href="#虚机配置" class="headerlink" title="虚机配置"></a><span id="虚机配置">虚机配置</span></h2><p>在 <strong>每台</strong> 虚机下配置</p>
+bridge_fd 9
+</code></pre><p>然后在宿主机</p>
+<pre><code>sudo ifup br0
+</code></pre><h2 id="虚机配置"><a href="#虚机配置" class="headerlink" title="虚机配置"></a><span id="虚机配置">虚机配置</span></h2><p>在 <strong>每台</strong> 虚机下配置</p>
 <p>/etc/hostname<br>sysctl kernel.hostname=yourhostname</p>
 <p>打开/etc/sysconfig/network-scripts/ifcfg-eth0，依照以下修改，注意：ONBOOT=yes和static。</p>
 <pre><code>HWADDR=52:54:00:2a:b9:f3
@@ -263,10 +263,9 @@ IPADDR=10.0.0.152   //你要配的虚机网卡IP，0网段
 PREFIX=23  //。。
 GATEWAY=10.0.0.1  //。。
 IPV6_PEERDNS=yes
-IPV6_PEERROUTES=yes</code></pre>
-<h2 id="kvm配置"><a href="#kvm配置" class="headerlink" title="kvm配置"></a><span id="kvm配置">kvm配置</span></h2><p>打开每台虚机的kvm设置，点击感叹号，点击NIC，找到网络源，选择桥接br0，点击应用确定。然后强制关机再开机（你也可以等待重启）。然后就可以在局域网访问你的虚机了。</p>
+IPV6_PEERROUTES=yes
+</code></pre><h2 id="kvm配置"><a href="#kvm配置" class="headerlink" title="kvm配置"></a><span id="kvm配置">kvm配置</span></h2><p>打开每台虚机的kvm设置，点击感叹号，点击NIC，找到网络源，选择桥接br0，点击应用确定。然后强制关机再开机（你也可以等待重启）。然后就可以在局域网访问你的虚机了。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service network restart</span><br></pre></td></tr></table></figure>
-
 <h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a><span id="其他问题">其他问题</span></h2><h3 id="ubuntu环境设置DNS"><a href="#ubuntu环境设置DNS" class="headerlink" title="ubuntu环境设置DNS"></a>ubuntu环境设置DNS</h3><p>在Ubuntu环境下，打开网页非常缓慢，很可能是DNS设置异常的问题。</p>
 <ul>
 <li><p>方法1：</p>
@@ -274,7 +273,6 @@ IPV6_PEERROUTES=yes</code></pre>
 </li>
 <li><p>方法2：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf&#x2F;base  </span><br><span class="line">或者&#x2F;etc&#x2F;resolvconf&#x2F;resolv.conf.d&#x2F;base</span><br><span class="line">修改为：</span><br><span class="line">nameserver 8.8.8.8</span><br><span class="line">nameserver 8.8.4.4</span><br><span class="line">然后执行resolvconf -u  </span><br></pre></td></tr></table></figure>
-
 <p>就能在/etc/resolv.conf文件中多出2行。<br>还有一种方式是修改/etc/resolvconf/resolv.conf/head，不过这个文件系统不建议修改。</p>
 </li>
 </ul>
@@ -494,6 +492,8 @@ IPV6_PEERROUTES=yes</code></pre>
 
 
 
+
+  
 
   
 

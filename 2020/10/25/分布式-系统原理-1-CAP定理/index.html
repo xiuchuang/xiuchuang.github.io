@@ -238,16 +238,18 @@
 <li>P 的体现前提是得有分区情况存在</li>
 </ul>
 <blockquote>
-<p>文章来源：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/CAP%E5%AE%9A%E7%90%86">维基百科 CAP 定理</a></p>
+<p>文章来源：<a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/CAP定理">维基百科 CAP 定理</a></p>
 </blockquote>
-<h3 id="几个常用的-CAP-框架对比"><a href="#几个常用的-CAP-框架对比" class="headerlink" title="几个常用的 CAP 框架对比"></a>几个常用的 CAP 框架对比</h3><table>
+<h3 id="几个常用的-CAP-框架对比"><a href="#几个常用的-CAP-框架对比" class="headerlink" title="几个常用的 CAP 框架对比"></a>几个常用的 CAP 框架对比</h3><div class="table-container">
+<table>
 <thead>
 <tr>
 <th>框架</th>
 <th>所属</th>
 </tr>
 </thead>
-<tbody><tr>
+<tbody>
+<tr>
 <td>Eureka</td>
 <td>AP</td>
 </tr>
@@ -259,7 +261,9 @@
 <td>Consul</td>
 <td>CP</td>
 </tr>
-</tbody></table>
+</tbody>
+</table>
+</div>
 <h4 id="Eureka"><a href="#Eureka" class="headerlink" title="Eureka"></a>Eureka</h4><blockquote>
 <p>Eureka 保证了可用性，实现最终一致性。</p>
 </blockquote>
@@ -270,7 +274,7 @@
 </blockquote>
 <p>&emsp;&emsp;Zookeeper 在选举 leader 时会停止服务，只有成功选举 leader 成功后才能提供服务，选举时间较长；内部使用 paxos 选举投票机制，只有获取半数以上的投票才能成为 leader，否则重新投票，所以部署的时候最好集群节点不小于 3 的奇数个（但是谁能保证跪掉后节点也是基数个呢）；Zookeeper 健康检查一般是使用 tcp 长链接，在内部网络抖动时或者对应节点阻塞时候都会变成不可用，这里还是比较危险的。</p>
 <h4 id="Consul"><a href="#Consul" class="headerlink" title="Consul"></a>Consul</h4><p>&emsp;&emsp;和 Zookeeper 一样数据 CP。</p>
-<p>&emsp;&emsp;Consul 注册时候只有过半的节点都写入成功才认为注册成功；leader 挂掉时，重新选举期间整个 Consul 不可用,保证了强一致性但牺牲了可用性。<br>&emsp;&emsp;有很多 blog 说 Consul 属于 ap，官方已经确认他为 CP 机制 原文地址：<a target="_blank" rel="noopener" href="https://www.consul.io/docs/intro/vs/serf%E3%80%82">https://www.consul.io/docs/intro/vs/serf。</a></p>
+<p>&emsp;&emsp;Consul 注册时候只有过半的节点都写入成功才认为注册成功；leader 挂掉时，重新选举期间整个 Consul 不可用,保证了强一致性但牺牲了可用性。<br>&emsp;&emsp;有很多 blog 说 Consul 属于 ap，官方已经确认他为 CP 机制 原文地址：<a target="_blank" rel="noopener" href="https://www.consul.io/docs/intro/vs/serf。">https://www.consul.io/docs/intro/vs/serf。</a></p>
 <h3 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h3><p><a target="_blank" rel="noopener" href="https://github.com/doocs/advanced-java/blob/master/docs/distributed-system/distributed-system-cap.md">1. distributed-system-cap</a></p>
 
     </div>
@@ -491,6 +495,8 @@
 
 
 
+
+  
 
   
 

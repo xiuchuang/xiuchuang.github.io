@@ -235,7 +235,6 @@
 <p>&emsp;&emsp;是这个么场景。有个同学是这样写代码逻辑的。先插入一条数据，再把它查出来，然后更新这条数据。在生产环境高峰期，写并发达到了 2000/s，这个时候，主从复制延时大概是在小几十毫秒。线上会发现，每天总有那么一些数据，我们期望更新一些重要的数据状态，但在高峰期时候却没更新。用户跟客服反馈，而客服就会反馈给我们。</p>
 <p>&emsp;&emsp;我们通过 MySQL 命令：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show status</span><br></pre></td></tr></table></figure>
-
 <p>&emsp;&emsp;查看 <code>Seconds_Behind_Master</code> ，可以看到从库复制主库的数据落后了几 ms。</p>
 <p>&emsp;&emsp;一般来说，如果主从延迟较为严重，有以下解决方案：</p>
 <ul>
@@ -464,6 +463,8 @@
 
 
 
+
+  
 
   
 
