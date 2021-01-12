@@ -1025,6 +1025,103 @@ min(x,y_1)∗t_1 < min(x,y)∗t</script><p>即无论我们怎么移动右指针�
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/01/12/RomanToInteger/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Peng Chen">
+      <meta itemprop="description" content="彭晨的简单记录">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pengchen's Blog">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/12/RomanToInteger/" class="post-title-link" itemprop="url">IntegerToRoman</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-01-12 21:55:26 / 修改时间：21:58:19" itemprop="dateCreated datePublished" datetime="2021-01-12T21:55:26+08:00">2021-01-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Leetcode/" itemprop="url" rel="index"><span itemprop="name">Leetcode</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="整数转罗马数字"><a href="#整数转罗马数字" class="headerlink" title="整数转罗马数字"></a>整数转罗马数字</h2><ul>
+<li><a href="#题目介绍">题目介绍</a></li>
+<li><a href="#题目解法">题目解法</a></li>
+</ul>
+<h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a><span id="题目介绍">题目介绍</span></h3><p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/roman-to-integer/">罗马数字转整数</a></p>
+<p>罗马数字包含以下七种字符： <code>I</code>， <code>V</code>， <code>X</code>， <code>L</code>，<code>C</code>，<code>D</code> 和 <code>M</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">字符          数值</span><br><span class="line">I             1</span><br><span class="line">V             5</span><br><span class="line">X             10</span><br><span class="line">L             50</span><br><span class="line">C             100</span><br><span class="line">D             500</span><br><span class="line">M             1000</span><br></pre></td></tr></table></figure>
+<p>例如， 罗马数字 2 写做 <code>II</code> ，即为两个并列的 1。12 写做 <code>XII</code> ，即为 <code>X</code> + <code>II</code> 。 27 写做 <code>XXVII</code>, 即为 <code>XX</code> + <code>V</code> + <code>II</code> 。</p>
+<p>通常情况下，罗马数字中小的数字在大的数字的右边。但也存在特例，例如4 不写做 <code>IIII</code>，而是 <code>IV</code>。数字 1 在数字 5 的左边，所表示的数等于大数5 减小数 1 得到的数值 4 。同样地，数字 9 表示为 <code>IX</code>。这个特殊的规则只适用于以下六种情况：</p>
+<ul>
+<li><code>I</code> 可以放在 <code>V</code> (5) 和 <code>X</code> (10) 的左边，来表示 4 和 9。</li>
+<li><code>X</code> 可以放在 <code>L</code> (50) 和 <code>C</code> (100) 的左边，来表示 40 和 90。</li>
+<li><code>C</code> 可以放在 <code>D</code> (500) 和 <code>M</code> (1000) 的左边，来表示 400 和 900。</li>
+</ul>
+<p>给定一个整数，将其转为罗马数字。输入确保在 1 到 3999 的范围内。</p>
+<p><strong>示例 1:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: III</span><br><span class="line">输出: &quot;3&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 2:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: IV</span><br><span class="line">输出: &quot;4&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 3:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">输入: IX</span><br><span class="line">输出: &quot;9&quot;</span><br></pre></td></tr></table></figure>
+<p><strong>示例 4:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: LVIII</span><br><span class="line">输出: &quot;58&quot;</span><br><span class="line">解释: L &#x3D; 50, V &#x3D; 5, III &#x3D; 3.</span><br></pre></td></tr></table></figure>
+<p><strong>示例 5:</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入: MCMXCIV</span><br><span class="line">输出: &quot;1994&quot;</span><br><span class="line">解释: M &#x3D; 1000, CM &#x3D; 900, XC &#x3D; 90, IV &#x3D; 4.</span><br></pre></td></tr></table></figure>
+<h3 id="题目解法"><a href="#题目解法" class="headerlink" title="题目解法"></a><span id="题目解法">题目解法</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> algorithm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RomanToInteger</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> Map&lt;Character, Integer&gt; map = <span class="keyword">new</span> HashMap&lt;Character, Integer&gt;()&#123;&#123;</span><br><span class="line">        put(<span class="string">&#x27;I&#x27;</span>, <span class="number">1</span>);</span><br><span class="line">        put(<span class="string">&#x27;V&#x27;</span>, <span class="number">5</span>);</span><br><span class="line">        put(<span class="string">&#x27;X&#x27;</span>, <span class="number">10</span>);</span><br><span class="line">        put(<span class="string">&#x27;L&#x27;</span>, <span class="number">50</span>);</span><br><span class="line">        put(<span class="string">&#x27;C&#x27;</span>, <span class="number">100</span>);</span><br><span class="line">        put(<span class="string">&#x27;D&#x27;</span>, <span class="number">500</span>);</span><br><span class="line">        put(<span class="string">&#x27;M&#x27;</span>, <span class="number">1000</span>);</span><br><span class="line">    &#125;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">romanToInt</span><span class="params">(String s)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (s.length() &lt;= <span class="number">1</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> map.get(s.charAt(<span class="number">0</span>));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> result = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; s.length() - <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> first = map.get(s.charAt(i));</span><br><span class="line">            <span class="keyword">int</span> next = map.get(s.charAt(i + <span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (first &lt; next) &#123;</span><br><span class="line">                first *= -<span class="number">1</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            result += first;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result + map.get(s.charAt(s.length() - <span class="number">1</span>));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        String s;</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;III&quot;</span>;</span><br><span class="line">        System.out.println(romanToInt(s));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;IV&quot;</span>;</span><br><span class="line">        System.out.println(romanToInt(s));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;IX&quot;</span>;</span><br><span class="line">        System.out.println(romanToInt(s));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;LVIII&quot;</span>;</span><br><span class="line">        System.out.println(romanToInt(s));</span><br><span class="line"></span><br><span class="line">        s = <span class="string">&quot;MCMXCIV&quot;</span>;</span><br><span class="line">        System.out.println(romanToInt(s));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打印：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">3</span><br><span class="line">4</span><br><span class="line">9</span><br><span class="line">58</span><br><span class="line">1994</span><br></pre></td></tr></table></figure>
+<p><strong>思路：</strong></p>
+<p>很简单，就不说了。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/19/%E5%B1%80%E5%9F%9F%E7%BD%91%E4%BA%92%E8%AE%BF%E8%99%9A%E6%9C%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1213,7 +1310,7 @@ IPV6_PEERROUTES=yes
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">38</span>
+          <span class="site-state-item-count">39</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
