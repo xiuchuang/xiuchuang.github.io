@@ -23,19 +23,19 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="合并区间 题目介绍 题目解法  题目介绍合并区间以数组 intervals 表示若干个区间的集合，其中单个区间为 $intervals[i] &#x3D; [start_i, end_i]$ 。请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间。 示例1： 123输入：intervals &#x3D; [[1,3],[2,6],[8,10],[15,18]]输出：[[1,6">
+  <meta name="description" content="从中序与后序遍历序列构造二叉树 题目介绍 题目解法  题目介绍从中序与后序遍历序列构造二叉树根据一棵树的中序遍历与后序遍历构造二叉树。 注意:你可以假设树中没有重复的元素。 例如，给出 12中序遍历 inorder &#x3D; [9,3,15,20,7]后序遍历 postorder &#x3D; [9,15,7,20,3] 返回如下的二叉树： 12345  3 &#x2F; \9  20  &amp;#">
 <meta property="og:type" content="article">
-<meta property="og:title" content="MergeIntervals">
-<meta property="og:url" content="http://example.com/2021/03/29/MergeIntervals/index.html">
+<meta property="og:title" content="ConstructBinaryTreeFromInorderAndPostorderTraversal">
+<meta property="og:url" content="http://example.com/2021/07/15/ConstructBinaryTreeFromInorderAndPostorderTraversal/index.html">
 <meta property="og:site_name" content="Pengchen&#39;s Blog">
-<meta property="og:description" content="合并区间 题目介绍 题目解法  题目介绍合并区间以数组 intervals 表示若干个区间的集合，其中单个区间为 $intervals[i] &#x3D; [start_i, end_i]$ 。请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间。 示例1： 123输入：intervals &#x3D; [[1,3],[2,6],[8,10],[15,18]]输出：[[1,6">
+<meta property="og:description" content="从中序与后序遍历序列构造二叉树 题目介绍 题目解法  题目介绍从中序与后序遍历序列构造二叉树根据一棵树的中序遍历与后序遍历构造二叉树。 注意:你可以假设树中没有重复的元素。 例如，给出 12中序遍历 inorder &#x3D; [9,3,15,20,7]后序遍历 postorder &#x3D; [9,15,7,20,3] 返回如下的二叉树： 12345  3 &#x2F; \9  20  &amp;#">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-03-29T02:02:05.000Z">
-<meta property="article:modified_time" content="2021-03-29T02:09:30.754Z">
+<meta property="article:published_time" content="2021-07-14T23:23:11.000Z">
+<meta property="article:modified_time" content="2021-07-14T23:24:39.560Z">
 <meta property="article:author" content="Peng Chen">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2021/03/29/MergeIntervals/">
+<link rel="canonical" href="http://example.com/2021/07/15/ConstructBinaryTreeFromInorderAndPostorderTraversal/">
 
 
 <script id="page-configurations">
@@ -48,7 +48,7 @@
   };
 </script>
 
-  <title>MergeIntervals | Pengchen's Blog</title>
+  <title>ConstructBinaryTreeFromInorderAndPostorderTraversal | Pengchen's Blog</title>
   
 
 
@@ -164,7 +164,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/03/29/MergeIntervals/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/07/15/ConstructBinaryTreeFromInorderAndPostorderTraversal/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -177,7 +177,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          MergeIntervals
+          ConstructBinaryTreeFromInorderAndPostorderTraversal
         </h1>
 
         <div class="post-meta">
@@ -188,7 +188,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2021-03-29 10:02:05 / 修改时间：10:09:30" itemprop="dateCreated datePublished" datetime="2021-03-29T10:02:05+08:00">2021-03-29</time>
+              <time title="创建时间：2021-07-15 07:23:11 / 修改时间：07:24:39" itemprop="dateCreated datePublished" datetime="2021-07-15T07:23:11+08:00">2021-07-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -218,29 +218,21 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="合并区间"><a href="#合并区间" class="headerlink" title="合并区间"></a>合并区间</h4><ul>
+        <h3 id="从中序与后序遍历序列构造二叉树"><a href="#从中序与后序遍历序列构造二叉树" class="headerlink" title="从中序与后序遍历序列构造二叉树"></a>从中序与后序遍历序列构造二叉树</h3><ul>
 <li><a href="#题目介绍">题目介绍</a></li>
 <li><a href="#题目解法">题目解法</a></li>
 </ul>
-<h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a><span id="题目介绍">题目介绍</span></h3><h4 id="合并区间-1"><a href="#合并区间-1" class="headerlink" title="合并区间"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/merge-intervals/">合并区间</a></h4><p>以数组 <code>intervals</code> 表示若干个区间的集合，其中单个区间为 $intervals[i] = [start_i, end_i]$ 。请你合并所有重叠的区间，并返回一个不重叠的区间数组，该数组需恰好覆盖输入中的所有区间。</p>
-<p><strong>示例1：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：intervals &#x3D; [[1,3],[2,6],[8,10],[15,18]]</span><br><span class="line">输出：[[1,6],[8,10],[15,18]]</span><br><span class="line">解释：区间 [1,3] 和 [2,6] 重叠, 将它们合并为 [1,6].</span><br></pre></td></tr></table></figure>
-<p><strong>示例2：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">输入：intervals &#x3D; [[1,4],[4,5]]</span><br><span class="line">输出：[[1,5]]</span><br><span class="line">解释：区间 [1,4] 和 [4,5] 可被视为重叠区间。</span><br></pre></td></tr></table></figure>
-<p><strong>提示：</strong></p>
-<ul>
-<li><p>$1 &lt;= intervals.length &lt;= 10^4$</p>
-</li>
-<li><p><code>intervals[i].length == 2</code></p>
-</li>
-<li><p>$0 &lt;= start_i &lt;= end_i &lt;= 10^4$</p>
-</li>
-</ul>
-<h3 id="题目解法"><a href="#题目解法" class="headerlink" title="题目解法"></a><span id="题目解法">题目解法</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> algorithm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.ArrayList;</span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MergeIntervals</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span>[][] merge(<span class="keyword">int</span>[][] intervals) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 排序+合并</span></span><br><span class="line">        Arrays.sort(intervals, (interval1, interval2) -&gt; interval1[<span class="number">0</span>] - interval2[<span class="number">0</span>]);</span><br><span class="line"></span><br><span class="line">        List&lt;<span class="keyword">int</span>[]&gt; ans = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; intervals.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> left = intervals[i][<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">int</span> right = intervals[i][<span class="number">1</span>];</span><br><span class="line">            <span class="keyword">if</span> (ans.size() == <span class="number">0</span> || ans.get(ans.size() - <span class="number">1</span>)[<span class="number">1</span>] &lt; left) &#123;</span><br><span class="line">                ans.add(intervals[i]);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                ans.get(ans.size() - <span class="number">1</span>)[<span class="number">1</span>] = Math.max(ans.get(ans.size() - <span class="number">1</span>)[<span class="number">1</span>], right);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans.toArray(<span class="keyword">new</span> <span class="keyword">int</span>[ans.size()][]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span>[][] intervals = <span class="keyword">new</span> <span class="keyword">int</span>[][] &#123;&#123;<span class="number">1</span>,<span class="number">3</span>&#125;,&#123;<span class="number">2</span>,<span class="number">6</span>&#125;,&#123;<span class="number">8</span>,<span class="number">10</span>&#125;,&#123;<span class="number">15</span>,<span class="number">18</span>&#125;&#125;;</span><br><span class="line">        print(merge(intervals));</span><br><span class="line"></span><br><span class="line">        intervals = <span class="keyword">new</span> <span class="keyword">int</span>[][] &#123;&#123;<span class="number">1</span>,<span class="number">4</span>&#125;,&#123;<span class="number">4</span>,<span class="number">5</span>&#125;&#125;;</span><br><span class="line">        print(merge(intervals));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">print</span><span class="params">(<span class="keyword">int</span>[][] intervals)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span>[] interval : intervals) &#123;</span><br><span class="line">            System.out.print(<span class="string">&quot;[&quot;</span>);</span><br><span class="line">            System.out.print(interval[<span class="number">0</span>]);</span><br><span class="line">            System.out.print(<span class="string">&quot;,&quot;</span>);</span><br><span class="line">            System.out.print(interval[<span class="number">1</span>]);</span><br><span class="line">            System.out.print(<span class="string">&quot;]&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.print(<span class="string">&quot;, &quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="题目介绍"><a href="#题目介绍" class="headerlink" title="题目介绍"></a><span id="题目介绍">题目介绍</span></h3><h4 id="从中序与后序遍历序列构造二叉树-1"><a href="#从中序与后序遍历序列构造二叉树-1" class="headerlink" title="从中序与后序遍历序列构造二叉树"></a><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/">从中序与后序遍历序列构造二叉树</a></h4><p>根据一棵树的中序遍历与后序遍历构造二叉树。</p>
+<p><strong>注意:</strong><br>你可以假设树中没有重复的元素。</p>
+<p>例如，给出</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">中序遍历 inorder &#x3D; [9,3,15,20,7]</span><br><span class="line">后序遍历 postorder &#x3D; [9,15,7,20,3]</span><br></pre></td></tr></table></figure>
+<p>返回如下的二叉树：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  3</span><br><span class="line"> &#x2F; \</span><br><span class="line">9  20</span><br><span class="line">  &#x2F;  \</span><br><span class="line"> 15   7</span><br></pre></td></tr></table></figure>
+<h3 id="题目解法"><a href="#题目解法" class="headerlink" title="题目解法"></a><span id="题目解法">题目解法</span></h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> algorithm;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ConstructBinaryTreeFromInorderAndPostorderTraversal</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Map&lt;Integer, Integer&gt; map;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> TreeNode <span class="title">buildTree</span><span class="params">(<span class="keyword">int</span>[] inorder, <span class="keyword">int</span>[] postorder)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">int</span> n = inorder.length;</span><br><span class="line">        map = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; inorder.length; i++) &#123;</span><br><span class="line">            map.put(inorder[i], i);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> dfs(inorder, postorder, <span class="number">0</span>, n - <span class="number">1</span>, <span class="number">0</span>, n - <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> TreeNode <span class="title">dfs</span><span class="params">(<span class="keyword">int</span>[] inorder, <span class="keyword">int</span>[] postorder, <span class="keyword">int</span> inorderLeft, <span class="keyword">int</span> inorderRight,</span></span></span><br><span class="line"><span class="function"><span class="params">                         <span class="keyword">int</span> postOrderLeft, <span class="keyword">int</span> postOrderRight)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (inorderLeft &gt; inorderRight) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> root = postorder[postOrderRight];</span><br><span class="line">        TreeNode rootNode = <span class="keyword">new</span> TreeNode(root);</span><br><span class="line">        <span class="keyword">int</span> index = map.get(root);</span><br><span class="line">        <span class="keyword">int</span> leftSubTreeSize = index - inorderLeft;</span><br><span class="line"></span><br><span class="line">        rootNode.left = dfs(inorder, postorder, inorderLeft, index - <span class="number">1</span>,</span><br><span class="line">                postOrderLeft, postOrderLeft + leftSubTreeSize - <span class="number">1</span>);</span><br><span class="line">        rootNode.right = dfs(inorder, postorder, inorderLeft + leftSubTreeSize + <span class="number">1</span>, inorderRight,</span><br><span class="line">                postOrderLeft + leftSubTreeSize, postOrderRight - <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> rootNode;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TreeNode</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> val;</span><br><span class="line">        TreeNode left;</span><br><span class="line">        TreeNode right;</span><br><span class="line"></span><br><span class="line">        TreeNode() &#123;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        TreeNode(<span class="keyword">int</span> val) &#123;</span><br><span class="line">            <span class="keyword">this</span>.val = val;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        TreeNode(<span class="keyword">int</span> val, TreeNode left, TreeNode right) &#123;</span><br><span class="line">            <span class="keyword">this</span>.val = val;</span><br><span class="line">            <span class="keyword">this</span>.left = left;</span><br><span class="line">            <span class="keyword">this</span>.right = right;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>打印：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[1,6][8,10][15,18], [1,5], </span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
 <p><strong>思路：</strong></p>
-<p>思路上，就是排序和比较，不过效率很低。后续有时间，写一个效率好一点的算法。</p>
+<p>思路上，寻找根的节点位置，利用节点值唯一的特性。然后，递归构造树结构。其实也是抄上一道题的思路。</p>
 
     </div>
 
@@ -256,13 +248,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/03/28/JumpGame/" rel="prev" title="JumpGame">
-      <i class="fa fa-chevron-left"></i> JumpGame
+    <a href="/2021/07/14/ConstructBinaryTreeFromPreorderAndInorderTraversal/" rel="prev" title="ConstructBinaryTreeFromPreorderAndInorderTraversal">
+      <i class="fa fa-chevron-left"></i> ConstructBinaryTreeFromPreorderAndInorderTraversal
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2021/03/31/LowestCommonAncestorOfABinarySearchTree/" rel="next" title="LowestCommonAncestorOfABinarySearchTree">
-      LowestCommonAncestorOfABinarySearchTree <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -322,7 +311,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4"><span class="nav-number">1.</span> <span class="nav-text">合并区间</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%BB%8B%E7%BB%8D"><span class="nav-number"></span> <span class="nav-text">题目介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%88%E5%B9%B6%E5%8C%BA%E9%97%B4-1"><span class="nav-number">1.</span> <span class="nav-text">合并区间</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E8%A7%A3%E6%B3%95"><span class="nav-number"></span> <span class="nav-text">题目解法</span></a></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E4%B8%AD%E5%BA%8F%E4%B8%8E%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E6%A0%91"><span class="nav-number">1.</span> <span class="nav-text">从中序与后序遍历序列构造二叉树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">题目介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%8E%E4%B8%AD%E5%BA%8F%E4%B8%8E%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E6%A0%91-1"><span class="nav-number">2.1.</span> <span class="nav-text">从中序与后序遍历序列构造二叉树</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%98%E7%9B%AE%E8%A7%A3%E6%B3%95"><span class="nav-number">3.</span> <span class="nav-text">题目解法</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -529,7 +518,7 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
       repo        : 'comments',
       owner       : 'yangtzeshore',
       admin       : ['yangtzeshore'],
-      id          : '3741352c95ba1daa0a88e83b9228c608',
+      id          : '43ad41bd47ec18f88156f52abd9bddf6',
         language: 'zh-CN',
       distractionFreeMode: true
     });
